@@ -1,0 +1,17 @@
+﻿@page "/logout"
+@using Strona_v2.Client.Data
+
+@inject NavigationManager navigationManager
+@inject ISyncLocalStorageService LocalStorage
+@inject AuthenticationStateProvider AuthState
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        LocalStorage.RemoveItem("name");
+        LocalStorage.RemoveItem("token");
+        AuthState.GetAuthenticationStateAsync();
+
+        navigationManager.NavigateTo("/");
+    }
+}

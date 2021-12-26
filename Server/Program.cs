@@ -12,6 +12,7 @@ builder.Services.AddRazorPages();
 builder.Services.AddSingleton<ISqlDataAccess, SqlDataAccess>();
 builder.Services.AddSingleton<ILoginUser, LoginUser>();
 builder.Services.AddSingleton<IProfileUser, ProfileUser>();
+builder.Services.AddSingleton<IEditProfileUser, EditProfileUser>();
 
 builder.Services.AddSingleton<ITokenManager, TokenManager>();
 

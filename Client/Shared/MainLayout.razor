@@ -37,7 +37,8 @@
 
     protected override Task OnAfterRenderAsync(bool firstRender)
     {
-        UserName =  localstorage.GetItemAsString("name");
+        var resultName =  localstorage.GetItemAsString("name");
+        UserName = resultName.Trim('"');
         return base.OnAfterRenderAsync(firstRender);
     }
     private void GoToProfile ()

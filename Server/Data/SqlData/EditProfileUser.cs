@@ -49,6 +49,7 @@ namespace Strona_v2.Server.Data.SqlData
 
             await _SqlDataAccess.SaveData(sql, userEditProfile);
         }
+        //zmiania hasła
         public async Task EditPassword(UserLogin loginUser, UserEditProfile userEditProfile)
         {
             string sql = "UPDATE dbo.UserData " +

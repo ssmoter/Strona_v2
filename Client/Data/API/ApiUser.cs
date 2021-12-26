@@ -5,8 +5,8 @@ namespace Strona_v2.Client.Data.API
 {
     public class ApiUser : IApiUser
     {
-        private readonly HttpClient _httpClient;
-
+        private  HttpClient _httpClient;
+        private  AddTokenHttpClient _addTokenHttpClient;
         public ApiUser(HttpClient httpClient)
         {
             _httpClient = httpClient;
@@ -71,6 +71,25 @@ namespace Strona_v2.Client.Data.API
                     return result;
                 }
                 return null;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                throw;
+            }
+        }
+        // edycja profilu
+        public async Task EditProfile(UserLogin userLogin, UserEditProfile userEditProfile)
+        {
+            try
+            {
+                var Url = ApiStringName + "";
+                _addTokenHttpClient = new();
+                _httpClient = _addTokenHttpClient.AddHeadersAuthorization();
+
+                var result = await _httpClient.PutAsJsonAsync(Url,userEditProfile);
+
+
             }
             catch (Exception ex)
             {

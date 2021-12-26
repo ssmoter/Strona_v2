@@ -27,7 +27,7 @@ namespace Strona_v2.Server.Controllers
             _LogInUser = LogInUser;
             _tokenManager = TokenManager;
             _ProfileUser = ProfileUser;
-            _EditProfileUser = EditProfileUser;
+           _EditProfileUser = EditProfileUser;
         }
 
         // GET api/<UserController>/5
@@ -101,7 +101,7 @@ namespace Strona_v2.Server.Controllers
                 loginUser.Email = Email;
                 loginUser.Password = Password;
 
-                if (userEditProfile.Email!=null)
+                if (userEditProfile.Email != null)
                 {
                     await _EditProfileUser.EditEmail(loginUser, userEditProfile);
                 }

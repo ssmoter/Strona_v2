@@ -1,0 +1,65 @@
+﻿@page "/profile/{Id:int}"
+@page "/profile/{UserName}"
+
+@inject IApiUser _ApiUser
+
+@if (UserPublic != null)
+{
+    <AuthorizeView>
+        <Authorized>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="usersettings">
+                    <span class="oi oi-document" aria-hidden="true"></span> Edytuj Dane
+                </NavLink>
+            </div>
+        </Authorized>
+    </AuthorizeView>
+
+    <div>
+        <div>
+            <label>
+                <span>Profil @UserPublic.Name</span>
+                <span>@UserPublic.Like/-@UserPublic.UnLike</span>
+            </label>
+        </div>
+        <div>
+            <div>
+                <label>Data Ustworzenia:@UserPublic.DataCreat</label>
+            </div>
+            <div>
+                <label>Ostatnio online:@UserPublic.LastOnline</label>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <h3>
+        Loading
+    </h3>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    [Parameter]
+    public string? UserName { get; set; }
+
+    private string? Name;
+    private UserPublic? UserPublic;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id > 0)
+        {
+            UserPublic = await _ApiUser.ProfileUserPublic(Id);
+        }
+        if (UserName != null)
+        {
+            Name = UserName.Trim('"');
+            UserPublic = await _ApiUser.ProfileUserPublic(Name);
+        }
+    }
+
+}
