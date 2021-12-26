@@ -1,0 +1,49 @@
+﻿@inherits LayoutComponentBase
+@inject ISyncLocalStorageService localstorage
+@inject NavigationManager NavigationM
+
+<div class="page">
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+
+    <main>
+        <AuthorizeView>
+            <Authorized>
+                <div class="top-row px-4">
+                    <a @onclick="GoToProfile">@UserName</a>
+                </div>
+                <article class="content px-4">
+                    @Body
+                </article>
+            </Authorized>
+            <NotAuthorized>
+                <div class="top-row px-4">
+                    <NavLink href="login">Gość</NavLink>
+                </div>
+
+                <article class="content px-4">
+                    @Body
+                </article>
+            </NotAuthorized>
+
+
+        </AuthorizeView>
+    </main>
+</div>
+
+@code {
+    private string? UserName;
+
+    protected override Task OnAfterRenderAsync(bool firstRender)
+    {
+        UserName =  localstorage.GetItemAsString("name");
+        return base.OnAfterRenderAsync(firstRender);
+    }
+    private void GoToProfile ()
+    {
+        NavigationM.NavigateTo("/profile/" + UserName);
+    }
+
+
+}

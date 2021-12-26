@@ -1,0 +1,150 @@
+﻿using Microsoft.AspNetCore.Mvc;
+using Strona_v2.Server.Data.SqlData;
+using Strona_v2.Server.Filtres;
+using Strona_v2.Server.TokenAuthentication;
+using Strona_v2.Shared.User;
+
+namespace Strona_v2.Server.Controllers
+{
+
+    // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+
+
+    [Route("api/[controller]")]
+    [ApiController]
+    public class UserController : ControllerBase
+    {
+        private readonly ILoginUser _LogInUser;
+        private readonly ITokenManager _tokenManager;
+        private readonly IProfileUser _ProfileUser;
+        private readonly IEditProfileUser _EditProfileUser;
+
+        public UserController(ILoginUser LogInUser, 
+            ITokenManager TokenManager,
+            IProfileUser ProfileUser,
+            IEditProfileUser EditProfileUser)
+        {
+            _LogInUser = LogInUser;
+            _tokenManager = TokenManager;
+            _ProfileUser = ProfileUser;
+            _EditProfileUser = EditProfileUser;
+        }
+
+        // GET api/<UserController>/5
+        //Logowanie użytkownika i zapisywanie jego tokena dla filtru
+        [HttpGet]
+        [Route("login")]
+        public async Task<IActionResult> Login(string email, string password)
+        {
+            try
+            {
+                UserLogin user = await _LogInUser.UserLoginAsync(email, password);
+
+                if (_tokenManager.Authenticate(user))
+                {
+                    var token = _tokenManager.NewToken(user);
+                    user.Token = token.Value;
+                    user.ExpiryDate = token.ExpiryDate;
+                    return Ok(user);
+                    //return Ok(new { Token = _tokenManager.NewToken(user) });
+                }
+                ModelState.AddModelError("Unauthorized", "You are not unautorized.");
+                return Unauthorized(ModelState);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        //Pobieranie danych do obejrzenia profilu
+        [HttpGet]
+        [Route("profile")]
+        public async Task<IActionResult> ProfileData(int? id, string? userName)
+        {
+            UserPublic userFull;
+            try
+            {
+                //pobieranie po id 
+                if (id >= 0)
+                {
+                    userFull = await _ProfileUser.UserFullDataIntId((int)id);
+
+                    return Ok(userFull);
+                }
+                //pobieranie po nick
+                if (userName != null)
+                {
+                    userFull = await _ProfileUser.UserFullDataStringName(userName);
+
+                    return Ok(userFull);
+                }
+                //bledne dane/ nie ma usera
+                return NotFound();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+        }
+
+        //modyfikacja profilu
+        [HttpPatch]
+        [Route("profile/patch")]
+        [TokenAuthenticationFilter]
+        public async Task<IActionResult> PatchProfil(UserEditProfile userEditProfile,string Email,string Password)
+        {
+            try
+            {
+                UserLogin loginUser = new();
+                loginUser.Email = Email;
+                loginUser.Password = Password;
+
+                if (userEditProfile.Email!=null)
+                {
+                    await _EditProfileUser.EditEmail(loginUser, userEditProfile);
+                }
+                if (userEditProfile.Name != null)
+                {
+                    await _EditProfileUser.EditName(loginUser, userEditProfile);
+                }
+                if (userEditProfile.AvatarNameString != null)
+                {
+                    await _EditProfileUser.EditAvatarNameString(loginUser, userEditProfile);
+                }
+                if (userEditProfile.Password != null)
+                {
+                    await _EditProfileUser.EditPassword(loginUser, userEditProfile);
+                }
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+        // POST api/<UserController>
+        //[HttpPost]
+        //public void Post([FromBody] string value)
+        //{
+        //}
+
+        //// PUT api/<UserController>/5
+        //[HttpPut("{id}")]
+        //public void Put(int id, [FromBody] string value)
+        //{
+        //}
+
+        //// DELETE api/<UserController>/5
+        //[HttpDelete("{id}")]
+        //public void Delete(int id)
+        //{
+        //}
+    }
+
+
+}
