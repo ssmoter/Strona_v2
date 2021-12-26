@@ -1,0 +1,54 @@
+﻿@page "/login"
+@inject ILocalStorageService LocalStorage
+@inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthStateProvider
+@inject IApiUser ApiUser
+
+<EditForm Model="user" OnSubmit="HandleLogi">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    @if (CorrectLoginBool)
+    {
+        <span style="color:red">&nbsp;&nbsp;&nbsp;<span style="font-size:20px">&bull;&nbsp;</span>@CorrectLoginString</span>
+
+    }
+    <div class="form-group">
+        <label for="useremail">Email</label>
+        <InputText id="email" @bind-Value="user.Email" class="form-control"></InputText>
+    </div>
+    <div class="form-group">
+        <label for="password">Password</label>
+        <InputText id="password" @bind-Value="user.Password" type="password" class="form-control"></InputText>
+    </div>
+    <div>
+    <button type="submit" class="btn btn-primary">Login</button>
+    </div>
+</EditForm>
+
+@code {
+    private UserLogin user = new();
+    private string CorrectLoginString = "Podanie hasło lub email jest nieprawidłowe";
+    private bool CorrectLoginBool = false;
+
+    private async void HandleLogi()
+    {
+        //Dopisać zabezpieczenie przy błdnie podanych danych 
+        var LogUser = await ApiUser.LogIn(user.Email, user.Password);
+
+        if (LogUser == null)
+        {
+            CorrectLoginBool = true;
+        }
+
+        if (LogUser != null)
+        {
+            CorrectLoginBool = false;
+            Console.WriteLine("log me in!");
+            await LocalStorage.SetItemAsync<string>("name", LogUser.Name);
+            await LocalStorage.SetItemAsync<string>("token", LogUser.Token);
+            await AuthStateProvider.GetAuthenticationStateAsync();
+            NavigationManager.NavigateTo("");
+        }
+    }
+
+}
