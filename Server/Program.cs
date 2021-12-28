@@ -16,6 +16,8 @@ builder.Services.AddSingleton<IEditProfileUser, EditProfileUser>();
 
 builder.Services.AddSingleton<ITokenManager, TokenManager>();
 
+builder.Services.AddControllersWithViews().AddNewtonsoftJson();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

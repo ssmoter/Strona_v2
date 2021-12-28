@@ -1,18 +1,19 @@
-﻿using Strona_v2.Shared.User;
+﻿using Blazored.LocalStorage;
+using Strona_v2.Shared.User;
 using System.Net.Http.Json;
 
 namespace Strona_v2.Client.Data.API
 {
     public class ApiUser : IApiUser
     {
-        private  HttpClient _httpClient;
-        private  AddTokenHttpClient _addTokenHttpClient;
+        private HttpClient _httpClient { get; set; }
+
         public ApiUser(HttpClient httpClient)
         {
             _httpClient = httpClient;
         }
 
-        public string ApiStringName { get; set; } = "https://localhost:7249/api/User/";
+        private readonly string ApiStringName = "https://localhost:7249/api/User/";
 
         //pobieranie danych pod sprawdzenie czy user istnieje i daje możliwość zalogowania
         //poprzez pobranie tokena
@@ -41,7 +42,7 @@ namespace Strona_v2.Client.Data.API
         }
 
         //pobranie profilu usera po Id
-        public async Task<UserPublic> ProfileUserPublic(int Id)
+        public async Task<UserPublic?> ProfileUserPublic(int Id)
         {
             try
             {
@@ -60,7 +61,7 @@ namespace Strona_v2.Client.Data.API
             }
         }
         //pobranie profilu usera po nick
-        public async Task<UserPublic> ProfileUserPublic(string UserName)
+        public async Task<UserPublic?> ProfileUserPublic(string UserName)
         {
             try
             {
@@ -78,29 +79,6 @@ namespace Strona_v2.Client.Data.API
                 throw;
             }
         }
-        // edycja profilu
-        public async Task EditProfile(UserLogin userLogin, UserEditProfile userEditProfile)
-        {
-            try
-            {
-                var Url = ApiStringName + "";
-                _addTokenHttpClient = new();
-                _httpClient = _addTokenHttpClient.AddHeadersAuthorization();
-
-                var result = await _httpClient.PutAsJsonAsync(Url,userEditProfile);
-
-
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                throw;
-            }
-        }
-
-
-
-
-
+ 
     }
 }

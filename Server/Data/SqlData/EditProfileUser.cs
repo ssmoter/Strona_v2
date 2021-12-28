@@ -23,7 +23,7 @@ namespace Strona_v2.Server.Data.SqlData
         public async Task EditEmail(UserLogin loginUser, UserEditProfile userEditProfile)
         {
             string sql = "UPDATE dbo.UserData " +
-                " SET Email = @Email " +
+                " SET Email = @Email , EmailConfirm = 0" +
                 " WHERE Email = N'" + loginUser.Email + "' AND Password = N'" + loginUser.Password + "'";
             //"HASHBYTES('SHA2_512',CONVERT(NVARCHAR(32),N'" + Password + "'))";
 

@@ -18,7 +18,7 @@ namespace Strona_v2.Server.Filtres
 
             if (result)
             {
-                token = context.HttpContext.Request.Headers.First(x => x.Key == "Authorization").Value;
+                token = context.HttpContext.Request.Headers.FirstOrDefault(x => x.Key == "Authorization").Value;
                 bool CheckToken = await tokenManager.VerifyToken(token);
                 if (!CheckToken)
                 {
@@ -27,7 +27,7 @@ namespace Strona_v2.Server.Filtres
             }
             if (!result)
             {
-                context.ModelState.AddModelError("Unauthorization", "You are not uthorized.");
+                context.ModelState.AddModelError("Unauthorization", "You are not Authorized.");
                 context.Result = new UnauthorizedObjectResult(context.ModelState);
             }
 

@@ -41,7 +41,16 @@ namespace Strona_v2.Server.TokenAuthentication
         //sprawdzenie czy token jest w bazie danych i czy data się zgadza
         public async Task<bool> VerifyToken(string token)
         {
+            //ktos nie podał tokena
+            if (token==null)
+            {
+                return false;
+            }
             Token testToken = await _LogInUser.CheckTokenAndTime(token);
+            if (testToken==null)
+            {
+                return false;
+            }
 
             if (testToken.Value == token
                 && testToken.ExpiryDate > DateTimeOffset.Now)

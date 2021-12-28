@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.JsonPatch;
+using Microsoft.AspNetCore.Mvc;
 using Strona_v2.Server.Data.SqlData;
 using Strona_v2.Server.Filtres;
 using Strona_v2.Server.TokenAuthentication;
@@ -19,7 +20,7 @@ namespace Strona_v2.Server.Controllers
         private readonly IProfileUser _ProfileUser;
         private readonly IEditProfileUser _EditProfileUser;
 
-        public UserController(ILoginUser LogInUser, 
+        public UserController(ILoginUser LogInUser,
             ITokenManager TokenManager,
             IProfileUser ProfileUser,
             IEditProfileUser EditProfileUser)
@@ -27,7 +28,7 @@ namespace Strona_v2.Server.Controllers
             _LogInUser = LogInUser;
             _tokenManager = TokenManager;
             _ProfileUser = ProfileUser;
-           _EditProfileUser = EditProfileUser;
+            _EditProfileUser = EditProfileUser;
         }
 
         // GET api/<UserController>/5
@@ -92,28 +93,31 @@ namespace Strona_v2.Server.Controllers
         //modyfikacja profilu
         [HttpPatch]
         [Route("profile/patch")]
-        [TokenAuthenticationFilter]
-        public async Task<IActionResult> PatchProfil(UserEditProfile userEditProfile,string Email,string Password)
+        public async Task<IActionResult> PatchProfil(UserEditProfile userEditProfile, string email, string password)
         {
+            if (userEditProfile == null)
+            {
+                return NoContent();
+            }
             try
             {
                 UserLogin loginUser = new();
-                loginUser.Email = Email;
-                loginUser.Password = Password;
+                loginUser.Email = email;
+                loginUser.Password = password;
 
-                if (userEditProfile.Email != null)
+                if (!string.IsNullOrEmpty(userEditProfile.Email))
                 {
                     await _EditProfileUser.EditEmail(loginUser, userEditProfile);
                 }
-                if (userEditProfile.Name != null)
+                if (!string.IsNullOrEmpty(userEditProfile.Name))
                 {
                     await _EditProfileUser.EditName(loginUser, userEditProfile);
                 }
-                if (userEditProfile.AvatarNameString != null)
+                if (!string.IsNullOrEmpty(userEditProfile.AvatarNameString))
                 {
                     await _EditProfileUser.EditAvatarNameString(loginUser, userEditProfile);
                 }
-                if (userEditProfile.Password != null)
+                if (!string.IsNullOrEmpty(userEditProfile.Password))
                 {
                     await _EditProfileUser.EditPassword(loginUser, userEditProfile);
                 }

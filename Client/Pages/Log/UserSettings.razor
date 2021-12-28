@@ -1,9 +1,32 @@
 ﻿@page "/usersettings"
 @attribute [Authorize]
 
+@inject IApiUserWithToken _IApiUserWithToken
 
-<h3>UserSettings</h3>
+<EditForm>
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+
+
+</EditForm>
 
 @code {
+
+    string? test;
+    private async Task TaskAsync()
+    {
+        UserLogin userLogin = new();
+        userLogin.Email = "test@gmail.com";
+        userLogin.Password = "t";
+
+        UserEditProfile userEditProfile = new();
+        userEditProfile.Name = "test3";
+
+
+        var t = await _IApiUserWithToken.EditProfilPach(userLogin, userEditProfile);
+        if (t!=null)
+        test = t.ToString();
+    }
 
 }

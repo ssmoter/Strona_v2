@@ -26,8 +26,6 @@
                     @Body
                 </article>
             </NotAuthorized>
-
-
         </AuthorizeView>
     </main>
 </div>
@@ -37,11 +35,15 @@
 
     protected override Task OnAfterRenderAsync(bool firstRender)
     {
-        var resultName =  localstorage.GetItemAsString("name");
-        UserName = resultName.Trim('"');
+        var resultName = localstorage.GetItemAsString("name");
+        if (resultName != null)
+        {
+            UserName = resultName.Trim('"');
+        }
+
         return base.OnAfterRenderAsync(firstRender);
     }
-    private void GoToProfile ()
+    private void GoToProfile()
     {
         NavigationM.NavigateTo("/profile/" + UserName);
     }

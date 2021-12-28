@@ -4,22 +4,23 @@ namespace Strona_v2.Client.Data.API
 {
     public class AddTokenHttpClient
     {
-        private HttpClient _httpClient { get; set; }
         private ILocalStorageService localStorage { get; set; }
 
         private string? Token { get; set; }
-        private string Auth= "Authorization";
+        private string Auth = "Authorization";
 
-        public AddTokenHttpClient( )
+        public AddTokenHttpClient(ILocalStorageService LocalStorageService)
         {
-            Token = localStorage.GetItemAsync<string>("token").Result;
-            _httpClient=new();
+            localStorage = LocalStorageService;
         }
 
-        public HttpClient AddHeadersAuthorization()
+        public async Task<HttpClient> AddHeadersAuthorization(HttpClient httpClient)
         {
-            _httpClient.DefaultRequestHeaders.Add(Auth,Token);
-            return _httpClient;
+            Token = await localStorage.GetItemAsync<string>("token");
+            httpClient= new HttpClient();
+            httpClient.DefaultRequestHeaders.Clear();
+            httpClient.DefaultRequestHeaders.Add(Auth, Token);
+            return httpClient;
         }
 
     }

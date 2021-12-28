@@ -16,5 +16,7 @@ builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddAuthorizationCore();
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthStateProvider>();
 builder.Services.AddScoped<IApiUser, ApiUser>();
+builder.Services.AddScoped<IApiUserWithToken, ApiUserWithToken>();
+
 
 await builder.Build().RunAsync();
