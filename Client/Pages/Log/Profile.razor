@@ -5,37 +5,55 @@
 
 @if (UserPublic != null)
 {
-    <AuthorizeView>
-        <Authorized>
-            <div class="nav-item px-3">
-                <NavLink class="nav-link" href="usersettings">
-                    <span class="oi oi-document" aria-hidden="true"></span> Edytuj Dane
-                </NavLink>
+    <div class="col-auto">
+        <div class="col-auto float-start">
+            <div>
+                <div>
+                    <span>Profil @UserPublic.Name</span>
+                    <span>@UserPublic.Like/-@UserPublic.UnLike</span>
+                </div>
             </div>
-        </Authorized>
-    </AuthorizeView>
+            <div>
+                <div>
+                    <label>
+                        Data założenia konta:<br />
+                        @UserPublic.DataCreat.LocalDateTime
+                    </label>
+                </div>
+                <div>
+                    <label>Ostatnio online:@LastOnline</label>
+                </div>
+            </div>
+        </div>
+        <div class="col-auto float-start">
+            &nbsp;&nbsp;<br />&nbsp;&nbsp;<br />&nbsp;&nbsp;<br />&nbsp;&nbsp;<br />&nbsp;&nbsp;<br />&nbsp;&nbsp;<br />&nbsp;&nbsp;<br />&nbsp;&nbsp;<br />
+        </div>
+        <div class="col-auto">
+            <AuthorizeView>
+                <Authorized>
+                    <div class="nav-item ">
+                        <div @onclick="ToggleUserMenu">
+                            <NavLink class="nav-tabs">
+                                <span class="oi oi-document" aria-hidden="true">Edytuj Dane</span>
+                            </NavLink>
+                        </div>
+                    </div>
+                    @if (ToggleUserSetting)
+                    {
+                        <UserSettings></UserSettings>
+                    }
+                </Authorized>
+            </AuthorizeView>
+        </div>
+        <div class="col-auto float-end">
+        </div>
 
-    <div>
-        <div>
-            <label>
-                <span>Profil @UserPublic.Name</span>
-                <span>@UserPublic.Like/-@UserPublic.UnLike</span>
-            </label>
-        </div>
-        <div>
-            <div>
-                <label>Data Ustworzenia:@UserPublic.DataCreat</label>
-            </div>
-            <div>
-                <label>Ostatnio online:@UserPublic.LastOnline</label>
-            </div>
-        </div>
     </div>
 }
 else
 {
     <h3>
-        Loading
+        Loading...
     </h3>
 }
 
@@ -48,7 +66,6 @@ else
 
     private string? Name;
     private UserPublic? UserPublic;
-
     protected override async Task OnInitializedAsync()
     {
         if (Id > 0)
@@ -60,6 +77,36 @@ else
             Name = UserName.Trim('"');
             UserPublic = await _ApiUser.ProfileUserPublic(Name);
         }
+        WhenLastOnline();
     }
+    private bool ToggleUserSetting = false;
+
+    private void ToggleUserMenu()
+    {
+        ToggleUserSetting = !ToggleUserSetting;
+    }
+    private string? LastOnline;
+
+    //konvertowanie czasu na informacje kiedy user był ostatnio online w godzinach/dniach
+    private void WhenLastOnline()
+    {
+        DateTimeOffset dateTime;
+        dateTime = DateTimeOffset.Now;
+        long DateInt = dateTime.ToUnixTimeSeconds() - UserPublic.LastOnline.ToUnixTimeSeconds();
+        if (DateInt <= 120)//sekundy
+        {
+            LastOnline = "Online";
+        }
+        if (DateInt > 120 && DateInt <= 86400)//godziny
+        {
+            LastOnline = DateTimeOffset.FromUnixTimeSeconds(DateInt).Hour.ToString() + " Godzin temu";
+        }
+        if (DateInt > 86400)//dni
+        {
+            LastOnline = DateTimeOffset.FromUnixTimeSeconds(DateInt).Day.ToString() + " Dni temu";
+        }
+    }
+
+
 
 }

@@ -1,32 +1,40 @@
-﻿@page "/usersettings"
+﻿@*@page "/usersettings"*@
 @attribute [Authorize]
 
 @inject IApiUserWithToken _IApiUserWithToken
 
-<EditForm>
+<EditForm Model="userEditProfileViewModel" OnSubmit="HandChangeData">
     <DataAnnotationsValidator />
     <ValidationSummary />
-
-
-
+    <div class="row-cols-auto">
+        <div class="">
+            <label for="Name">
+                Nick &ensp;
+                <InputText @bind-Value=userEditProfileViewModel.Name></InputText>
+            </label>
+        </div>
+        <div class="">
+            <label for="Email">
+                Email
+                <InputText @bind-Value=userEditProfileViewModel.Email></InputText>
+            </label>
+        </div>
+        <div>
+            <button type="submit" class="btn btn-primary">Modyfikuj</button>
+        </div>
+    </div>
 </EditForm>
 
+
 @code {
+    UserEditProfileViewModel userEditProfileViewModel = new();
 
-    string? test;
-    private async Task TaskAsync()
+    private async Task HandChangeData()
     {
-        UserLogin userLogin = new();
-        userLogin.Email = "test@gmail.com";
-        userLogin.Password = "t";
 
-        UserEditProfile userEditProfile = new();
-        userEditProfile.Name = "test3";
-
-
-        var t = await _IApiUserWithToken.EditProfilPach(userLogin, userEditProfile);
-        if (t!=null)
-        test = t.ToString();
+        //var t = await _IApiUserWithToken.EditProfilPach(userLogin, userEditProfile);
+        //if (t != null)
+        //    test = t.ToString();
     }
 
 }

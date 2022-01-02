@@ -6,18 +6,18 @@ using System.Threading.Tasks;
 
 namespace Strona_v2.Shared.User
 {
-    public class Token
+    public class cToken
     {
-        public string Value { get; set; }
+        public string Token { get; set; }
         public DateTimeOffset ExpiryDate { get; set; }
 
-        public Token(string value, DateTimeOffset expiryDate)
+        public cToken(string value, DateTimeOffset expiryDate)
         {
-            Value = value;
+            Token = value;
             ExpiryDate = expiryDate;
         }
 
-        public Token()
+        public cToken()
         { }
     }
 }

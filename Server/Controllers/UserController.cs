@@ -43,9 +43,10 @@ namespace Strona_v2.Server.Controllers
 
                 if (_tokenManager.Authenticate(user))
                 {
-                    var token = _tokenManager.NewToken(user);
-                    user.Token = token.Value;
-                    user.ExpiryDate = token.ExpiryDate;
+                    user.Password= password;
+                    cToken token =await _tokenManager.NewToken(user);
+                    user.Token =  token.Token;
+                    user.ExpiryDate =  token.ExpiryDate;
                     return Ok(user);
                     //return Ok(new { Token = _tokenManager.NewToken(user) });
                 }
@@ -93,11 +94,12 @@ namespace Strona_v2.Server.Controllers
         //modyfikacja profilu
         [HttpPatch]
         [Route("profile/patch")]
-        public async Task<IActionResult> PatchProfil(UserEditProfile userEditProfile, string email, string password)
+        [TokenAuthenticationFilter]
+        public async Task<IActionResult> PatchProfil([FromBody]UserEditProfile userEditProfile, string email, string password)
         {
             if (userEditProfile == null)
             {
-                return NoContent();
+                 return NoContent();
             }
             try
             {
@@ -129,6 +131,23 @@ namespace Strona_v2.Server.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpGet]
+        [Route("lastonline")]
+        [TokenAuthenticationFilter]
+        public async Task<IActionResult> UpdateLastOnline()
+        {
+            string token = HttpContext.Request.Headers.FirstOrDefault(x => x.Key == "Authorization").Value;
+            if (token !=null)
+            {
+                DateTimeOffset LastOnline=DateTimeOffset.Now;
+                
+                await _EditProfileUser.UpdatelastOnline(token, LastOnline);
+                return Ok();
+            }
+            return NotFound();
+        }
+
 
 
         // POST api/<UserController>

@@ -1,4 +1,7 @@
 ﻿@page "/"
+@inject ILocalStorageService ILocalStorageService
+@inject IApiUserWithToken IApiUserWithToken
+
 
 <PageTitle>Index</PageTitle>
 
@@ -7,3 +10,13 @@
 Welcome to your new app.
 
 <SurveyPrompt Title="How is Blazor working for you?" />
+@code{
+    protected async override Task OnInitializedAsync()
+    {
+        string token = await ILocalStorageService.GetItemAsync<string>(nameof(token));
+        if(!string.IsNullOrEmpty(token))
+        {
+            await IApiUserWithToken.UpdateLastOnline();
+        }
+    }
+}

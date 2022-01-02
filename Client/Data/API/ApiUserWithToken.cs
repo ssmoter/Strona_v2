@@ -1,5 +1,4 @@
 ﻿using Blazored.LocalStorage;
-using Microsoft.AspNetCore.JsonPatch;
 using Newtonsoft.Json;
 using Strona_v2.Shared.User;
 using System.Text;
@@ -9,6 +8,7 @@ namespace Strona_v2.Client.Data.API
     public interface IApiUserWithToken
     {
         Task<HttpResponseMessage> EditProfilPach(UserLogin userLogin, UserEditProfile usereditProfile);
+        Task<bool> UpdateLastOnline();
     }
 
     public class ApiUserWithToken : IApiUserWithToken
@@ -40,8 +40,8 @@ namespace Strona_v2.Client.Data.API
 
                 var serializedUser = JsonConvert.SerializeObject(usereditProfile);
 
-                var requestContent = new StringContent(serializedUser, Encoding.UTF8, "application/json-patch+json");
-                
+                var requestContent = new StringContent(serializedUser, Encoding.UTF8, "application/json");
+
                 var result = await _httpClient.PatchAsync(Url, requestContent);
                 if (result.IsSuccessStatusCode)
                 {
@@ -56,6 +56,26 @@ namespace Strona_v2.Client.Data.API
             }
         }
 
+        //Aktualizacja ostatnie wizyty
+        public async Task<bool> UpdateLastOnline()
+        {
+            try
+            {
+                _httpClient = await _addTokenHttpClient.AddHeadersAuthorization(_httpClient);
+                var Url = ApiStringName + "lastonline";
+                var result = await _httpClient.GetAsync(Url);
+                if (result.IsSuccessStatusCode)
+                {
+                    Console.WriteLine("Zaktuzalizowano godzine");
+                    return true;
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
 
 
 

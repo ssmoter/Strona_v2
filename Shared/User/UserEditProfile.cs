@@ -19,6 +19,14 @@ namespace Strona_v2.Shared.User
         public string? AvatarNameString { get; set; }
 
     }
+    public class UserEditProfileViewModelPassword
+    {
+        [Required(ErrorMessage = "Hasło jest wymagane")]
+        [StringLength(100, ErrorMessage = "Minimalna długość hasła to {0}.", MinimumLength = 6)]
+        [DataType(DataType.Password)]
+        [Display(Name = "Password")]
+        public string Password { get; set; }
+    }
     public class UserEditProfileViewModel
     {
         public string? Name { get; set; }

@@ -5,7 +5,8 @@ namespace Strona_v2.Server.Data.SqlData
 {
     public interface ILoginUser
     {
-        Task<Token> CheckTokenAndTime(string token);
+        Task<cToken> CheckTokenAndTime(string token);
+        Task<cToken> CheckTokenAndTime(string Email, string Password);
         void SaveNewToken(UserLogin user);
         Task<UserLogin> UserLoginAsync(string Email, string Password);
     }
@@ -40,14 +41,22 @@ namespace Strona_v2.Server.Data.SqlData
         }
 
         //sprawdzienie czy token istnieje i jego czas jest poprawny
-        public async Task<Token> CheckTokenAndTime(string token)
+        public async Task<cToken> CheckTokenAndTime(string token)
         {
             string sql = "SELECT Token,ExpiryDate " +
                 " FROM dbo.UserData " +
                 " WHERE Token = N'" + token + "'";
 
-            return await _dataAccess.LoadData<Token>(sql);
+            return await _dataAccess.LoadData<cToken>(sql);
         }
+        public async Task<cToken> CheckTokenAndTime(string Email, string Password)
+        {
+            string sql = "SELECT Token,ExpiryDate " +
+                " FROM dbo.UserData " +
+                " WHERE Email = N'" + Email + "' AND Password = N'" + Password + "'";
+            //"HASHBYTES('SHA2_512',CONVERT(NVARCHAR(32),N'" + Password + "'))";
 
+            return await _dataAccess.LoadData<cToken>(sql);
+        }
     }
 }
