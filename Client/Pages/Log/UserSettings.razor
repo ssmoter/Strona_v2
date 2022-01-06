@@ -1,40 +1,104 @@
 ﻿@*@page "/usersettings"*@
 @attribute [Authorize]
 
+@inject ILocalStorageService _LocalStorage
 @inject IApiUserWithToken _IApiUserWithToken
+@inject NavigationManager _Navigation
+@inject ToastService toastService
 
-<EditForm Model="userEditProfileViewModel" OnSubmit="HandChangeData">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
-    <div class="row-cols-auto">
-        <div class="">
-            <label for="Name">
-                Nick &ensp;
-                <InputText @bind-Value=userEditProfileViewModel.Name></InputText>
-            </label>
+
+<div class="float-start">
+    <EditForm Model="userEditProfileViewModel" OnSubmit="HandChangeData">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <div class="row-cols-auto">
+            <div class="">
+                <label for="Name">
+                    Nick:&nbsp;
+                    <InputText @bind-Value=userEditProfileViewModel.Name></InputText>
+                </label>
+            </div>
+            <div class="">
+                <label for="Email">
+                    Email:
+                    <InputText @bind-Value=userEditProfileViewModel.Email></InputText>
+                </label>
+            </div>
+            <div>
+                <button type="submit" class="btn btn-primary">Modyfikuj</button>
+            </div>
+            @if (@AddPassowrd)
+            {
+                <div class="">
+                    Potwierdz się podając hasło
+                    <br> i kliknij enter
+                </div>
+                <div>
+                    <label for="Password">
+                        Password:
+                        <InputText type="passowrd" @bind-Value="userLogin.Password"></InputText>
+                    </label>
+                </div>
+                @if (userLogin.Password != null)
+                {
+                    <div>
+                        <span>@PasswordIsNull</span>
+                    </div>
+                }
+            }
         </div>
-        <div class="">
-            <label for="Email">
-                Email
-                <InputText @bind-Value=userEditProfileViewModel.Email></InputText>
-            </label>
-        </div>
-        <div>
-            <button type="submit" class="btn btn-primary">Modyfikuj</button>
-        </div>
-    </div>
-</EditForm>
+    </EditForm>
+</div>
 
 
 @code {
-    UserEditProfileViewModel userEditProfileViewModel = new();
+    private UserEditProfileViewModel userEditProfileViewModel = new();
+    private UserLogin userLogin = new();
+    private bool AddPassowrd = false;
+    private string PasswordIsNull = "Podaj Hasło";
 
     private async Task HandChangeData()
     {
+        userLogin.Email = await _LocalStorage.GetItemAsync<string>("email");
+        AddPassowrd = !AddPassowrd;
+        if (userLogin.Password != null)
+        {
+            UserEditProfile userEditProfile = new();
+            userEditProfile.Name = userEditProfileViewModel.Name;
+            userEditProfile.Email = userEditProfileViewModel.Email;
 
-        //var t = await _IApiUserWithToken.EditProfilPach(userLogin, userEditProfile);
-        //if (t != null)
-        //    test = t.ToString();
+            HttpResponseMessage t = await _IApiUserWithToken.EditProfilPach(userLogin, userEditProfile);
+
+            if (t.IsSuccessStatusCode)
+            {
+                UpdateLocalStorage(userEditProfile.Email, userEditProfile.Name);
+                Console.WriteLine("Zaktuzalizowano dane");
+                toastService.ShowToast("Zaktuzalizowano dane", ToastLevel.Success);
+                _Navigation.NavigateTo("");
+            }
+            else
+            {
+                toastService.ShowToast("Coś poszło nie tak", ToastLevel.Error);
+                Console.WriteLine("Coś poszło nie tak");
+            }
+
+        }
     }
+
+    private async void UpdateLocalStorage(string? email, string? name)
+    {
+        if (!string.IsNullOrEmpty(name))
+        {
+            await _LocalStorage.RemoveItemAsync("name");
+            await _LocalStorage.SetItemAsync<string>("name", name);
+        }
+        if (!string.IsNullOrEmpty(email))
+        {
+            await _LocalStorage.RemoveItemAsync("email");
+            await _LocalStorage.SetItemAsync<string>("email", email);
+        }
+
+    }
+
 
 }

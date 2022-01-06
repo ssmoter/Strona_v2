@@ -2,6 +2,8 @@
 @inject ISyncLocalStorageService localstorage
 @inject NavigationManager NavigationM
 
+<Toast></Toast>
+
 <div class="page">
     <div class="sidebar">
         <NavMenu />
@@ -11,7 +13,7 @@
         <AuthorizeView>
             <Authorized>
                 <div class="top-row px-4">
-                    <a @onclick="GoToProfile">@UserName</a>
+                    <a @onclick="GoToProfile">@*@context.User.Identity.Name.Trim('"')*@ @UserName</a>
                 </div>
                 <article class="content px-4">
                     @Body
@@ -29,7 +31,6 @@
         </AuthorizeView>
     </main>
 </div>
-
 @code {
     private string? UserName;
 
@@ -45,6 +46,11 @@
     }
     private void GoToProfile()
     {
+        var resultName = localstorage.GetItemAsString("name");
+        if (resultName != null)
+        {
+            UserName = resultName.Trim('"');
+        }
         NavigationM.NavigateTo("/profile/" + UserName);
     }
 

@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using Strona_v2.Shared.User;
 using System.Text;
 
+
 namespace Strona_v2.Client.Data.API
 {
     public interface IApiUserWithToken
@@ -64,7 +65,7 @@ namespace Strona_v2.Client.Data.API
                 _httpClient = await _addTokenHttpClient.AddHeadersAuthorization(_httpClient);
                 var Url = ApiStringName + "lastonline";
                 var result = await _httpClient.GetAsync(Url);
-                if (result.IsSuccessStatusCode)
+                if (result.StatusCode.ToString() == "OK")
                 {
                     Console.WriteLine("Zaktuzalizowano godzine");
                     return true;

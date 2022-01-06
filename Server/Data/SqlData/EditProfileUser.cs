@@ -9,7 +9,7 @@ namespace Strona_v2.Server.Data.SqlData
         Task EditEmail(UserLogin loginUser, UserEditProfile userEditProfile);
         Task EditName(UserLogin loginUser, UserEditProfile userEditProfile);
         Task EditPassword(UserLogin loginUser, UserEditProfile userEditProfile);
-        Task UpdatelastOnline(string token, DateTimeOffset LastOnline);
+        Task<bool> UpdatelastOnline(string token, DateTimeOffset LastOnline);
     }
 
     public class EditProfileUser : IEditProfileUser
@@ -61,8 +61,12 @@ namespace Strona_v2.Server.Data.SqlData
             await _SqlDataAccess.SaveData(sql, userEditProfile);
         }
         //aktualizowanie kiedy ostatnio był dostępny user
-        public async Task UpdatelastOnline(string token, DateTimeOffset LastOnline)
+        public async Task<bool> UpdatelastOnline(string token, DateTimeOffset LastOnline)
         {
+            if (!(await CheckToken(token)))
+            {
+                return false;
+            }
             UserPublic user = new();
             user.LastOnline = LastOnline;
             string sql = "UPDATE dbo.UserData " +
@@ -70,7 +74,20 @@ namespace Strona_v2.Server.Data.SqlData
                 " WHERE Token = N'" + token + "'";
 
             await _SqlDataAccess.SaveData(sql, user);
+            return true;
         }
-
+        private async Task<bool> CheckToken(string token)
+        {
+            string sql = "SELECT Id,Email,Name " +
+                    " FROM dbo.UserData " +
+                      " WHERE Token = N'" + token + "'";
+            UserLogin login = new();
+            login = await _SqlDataAccess.LoadData<UserLogin>(sql);
+            if (login != null)
+            {
+                return true;
+            }
+            return false;
+        }
     }
 }

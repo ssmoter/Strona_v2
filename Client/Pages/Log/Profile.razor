@@ -6,7 +6,8 @@
 @if (UserPublic != null)
 {
     <div class="col-auto">
-        <div class="col-auto float-start">
+        <center
+        class="col-auto float-start">
             <div>
                 <div>
                     <span>Profil @UserPublic.Name</span>
@@ -24,10 +25,11 @@
                     <label>Ostatnio online:@LastOnline</label>
                 </div>
             </div>
-        </div>
-        <div class="col-auto float-start">
+        </center>
+        <center class="col-auto float-start">
             &nbsp;&nbsp;<br />&nbsp;&nbsp;<br />&nbsp;&nbsp;<br />&nbsp;&nbsp;<br />&nbsp;&nbsp;<br />&nbsp;&nbsp;<br />&nbsp;&nbsp;<br />&nbsp;&nbsp;<br />
-        </div>
+            &nbsp;&nbsp;<br />&nbsp;&nbsp;<br />&nbsp;&nbsp;<br />&nbsp;&nbsp;<br />&nbsp;&nbsp;<br />&nbsp;&nbsp;<br />&nbsp;&nbsp;<br />&nbsp;&nbsp;<br />
+        </center>
         <div class="col-auto">
             <AuthorizeView>
                 <Authorized>
@@ -47,8 +49,9 @@
         </div>
         <div class="col-auto float-end">
         </div>
-
     </div>
+
+    
 }
 else
 {

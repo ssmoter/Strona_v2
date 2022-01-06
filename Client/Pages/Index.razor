@@ -1,22 +1,56 @@
 ﻿@page "/"
 @inject ILocalStorageService ILocalStorageService
 @inject IApiUserWithToken IApiUserWithToken
+@inject ToastService toastService
+@inject BrowserService browserService
+@inject NavigationManager navigationManager
+
+@if (browserDimension.Width > 640)
+{
+    @*<button class="btn btn-danger" @onclick="@(() => toastService.ShowToast("I'm an ERROR message", ToastLevel.Error))">Error Toast</button>*@
 
 
-<PageTitle>Index</PageTitle>
+    <div class="float-start w-50">
+        <img src="/BlekitnaFlaga1850ST.jpg" class="img-fluid" />
 
-<h1>Hello, world!</h1>
+        <button class="btn btn-info" @onclick="@(() => toastService.ShowToast("I'm an INFO message", ToastLevel.Info))">Info Toast</button>
+    </div>
+    <div class="float-start w-25">
+        <img src="/BlekitnaFlaga1850ST.jpg" class="img-fluid" />
 
-Welcome to your new app.
+        <button class="btn btn-success" @onclick="@(() => toastService.ShowToast("I'm a SUCCESS message", ToastLevel.Success))">Success Toast</button>
+    </div>
+@*    <div class="float-start w-25">
+        <img src="/BlekitnaFlaga1850ST.jpg" class="img-fluid" />
 
-<SurveyPrompt Title="How is Blazor working for you?" />
-@code{
+        <button class="btn btn-warning" @onclick="@(() => toastService.ShowToast("I'm a WARNING message", ToastLevel.Warning))">Warning Toast</button>
+    </div>*@
+}
+else
+{
+
+}
+
+@code {
+    BrowserDimension browserDimension = new();
+
     protected async override Task OnInitializedAsync()
     {
+        browserDimension = await browserService.GetBrowserDimension();
+
         string token = await ILocalStorageService.GetItemAsync<string>(nameof(token));
-        if(!string.IsNullOrEmpty(token))
+        if (!string.IsNullOrEmpty(token))
         {
-            await IApiUserWithToken.UpdateLastOnline();
+            bool check = await IApiUserWithToken.UpdateLastOnline();
+            WrongToken(check);
+        }
+    }
+
+    private void WrongToken(bool Check)
+    {
+        if (!Check)
+        {
+            navigationManager.NavigateTo("logout");
         }
     }
 }

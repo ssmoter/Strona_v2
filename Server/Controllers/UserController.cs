@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.JsonPatch;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Strona_v2.Server.Data.SqlData;
 using Strona_v2.Server.Filtres;
 using Strona_v2.Server.TokenAuthentication;
@@ -43,10 +42,10 @@ namespace Strona_v2.Server.Controllers
 
                 if (_tokenManager.Authenticate(user))
                 {
-                    user.Password= password;
-                    cToken token =await _tokenManager.NewToken(user);
-                    user.Token =  token.Token;
-                    user.ExpiryDate =  token.ExpiryDate;
+                    user.Password = password;
+                    cToken token = await _tokenManager.NewToken(user);
+                    user.Token = token.Token;
+                    user.ExpiryDate = token.ExpiryDate;
                     return Ok(user);
                     //return Ok(new { Token = _tokenManager.NewToken(user) });
                 }
@@ -95,11 +94,11 @@ namespace Strona_v2.Server.Controllers
         [HttpPatch]
         [Route("profile/patch")]
         [TokenAuthenticationFilter]
-        public async Task<IActionResult> PatchProfil([FromBody]UserEditProfile userEditProfile, string email, string password)
+        public async Task<IActionResult> PatchProfil([FromBody] UserEditProfile userEditProfile, string email, string password)
         {
             if (userEditProfile == null)
             {
-                 return NoContent();
+                return NoContent();
             }
             try
             {
@@ -138,12 +137,15 @@ namespace Strona_v2.Server.Controllers
         public async Task<IActionResult> UpdateLastOnline()
         {
             string token = HttpContext.Request.Headers.FirstOrDefault(x => x.Key == "Authorization").Value;
-            if (token !=null)
+            if (token != null)
             {
-                DateTimeOffset LastOnline=DateTimeOffset.Now;
-                
-                await _EditProfileUser.UpdatelastOnline(token, LastOnline);
-                return Ok();
+                DateTimeOffset LastOnline = DateTimeOffset.Now;
+
+                bool ItIsCorrect = await _EditProfileUser.UpdatelastOnline(token, LastOnline);
+                if (ItIsCorrect)
+                    return Ok();
+                else
+                    return BadRequest();
             }
             return NotFound();
         }

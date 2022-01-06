@@ -10,6 +10,7 @@
     {
         LocalStorage.RemoveItem("name");
         LocalStorage.RemoveItem("token");
+        LocalStorage.RemoveItem("email");
         AuthState.GetAuthenticationStateAsync();
 
         navigationManager.NavigateTo("/");

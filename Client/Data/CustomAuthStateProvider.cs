@@ -42,7 +42,6 @@ namespace Strona_v2.Client.Data
             //    state = _anonymous;
             //}
 
-
             return state;
         }
     }

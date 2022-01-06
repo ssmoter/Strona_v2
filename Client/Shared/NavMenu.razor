@@ -1,5 +1,6 @@
 ﻿@inject ISyncLocalStorageService LocalStorage
 
+
 <div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">Strona_v2</a>
@@ -42,7 +43,7 @@
                 </div>
                 <div class="nav-item px-3" @onclick=TakeUserName>
                     <a class="nav-link" href="profile/@UserName">
-                        <span class="oi oi-person" ariaaria-hidden="true"></span> Profil
+                        <span class="oi oi-person" ariaaria-hidden="true"></span> @context.User.Identity.Name.Trim('"')
                     </a>
                 </div>
             </Authorized>
@@ -58,7 +59,7 @@
     private string? UserName;
 
     //pobranie nazwy użytkownia do przezucenia go do jego profilu
-    private void TakeUserName()
+    private  void TakeUserName()
     {
         UserName = LocalStorage.GetItem<string>("name");
     }
@@ -67,5 +68,7 @@
     {
         collapseNavMenu = !collapseNavMenu;
     }
+
+
 
 }

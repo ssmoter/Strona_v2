@@ -21,7 +21,7 @@
         <InputText id="password" @bind-Value="user.Password" type="password" class="form-control"></InputText>
     </div>
     <div>
-    <button type="submit" class="btn btn-primary">Login</button>
+        <button type="submit" class="btn btn-primary">Login</button>
     </div>
 </EditForm>
 
@@ -32,7 +32,7 @@
 
     private async void HandleLogi()
     {
-        //Dopisać zabezpieczenie przy błdnie podanych danych 
+        //Dopisać zabezpieczenie przy błdnie podanych danych
         var LogUser = await ApiUser.LogIn(user.Email, user.Password);
 
         if (LogUser == null)
@@ -46,6 +46,7 @@
             Console.WriteLine("log me in!");
             await LocalStorage.SetItemAsync<string>("name", LogUser.Name);
             await LocalStorage.SetItemAsync<string>("token", LogUser.Token);
+            await LocalStorage.SetItemAsync<string>("email", LogUser.Email);
             await AuthStateProvider.GetAuthenticationStateAsync();
             NavigationManager.NavigateTo("");
         }
