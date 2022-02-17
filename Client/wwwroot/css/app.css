@@ -99,11 +99,11 @@ a, .btn-link {
     flex-direction: row;
     animation: fadein 1.5s;
     position: absolute;
-    top: 12%;
+    top: 20%;
     left: 90%;
     margin-top: -50px;
     margin-left: -100px;
-    border-radius: 1rem;
+    border-radius: 3rem;
 }
 
 @keyframes fadein {
@@ -114,4 +114,8 @@ a, .btn-link {
     to {
         opacity: 1;
     }
+}
+
+.img-avatar{
+   
 }

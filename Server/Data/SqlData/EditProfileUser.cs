@@ -9,12 +9,16 @@ namespace Strona_v2.Server.Data.SqlData
         Task EditEmail(UserLogin loginUser, UserEditProfile userEditProfile);
         Task EditName(UserLogin loginUser, UserEditProfile userEditProfile);
         Task EditPassword(UserLogin loginUser, UserEditProfile userEditProfile);
+        Task<List<string>> GetAllEmail();
+        Task<List<string>> GetAllName();
         Task<bool> UpdatelastOnline(string token, DateTimeOffset LastOnline);
     }
 
     public class EditProfileUser : IEditProfileUser
     {
         private readonly ISqlDataAccess _SqlDataAccess;
+        private readonly string TableName = "UserData";
+
 
         public EditProfileUser(ISqlDataAccess sqlDataAccess)
         {
@@ -23,9 +27,9 @@ namespace Strona_v2.Server.Data.SqlData
         //zmiana Email
         public async Task EditEmail(UserLogin loginUser, UserEditProfile userEditProfile)
         {
-            string sql = "UPDATE dbo.UserData " +
-                " SET Email = @Email , EmailConfirm = 0" +
-                " WHERE Email = N'" + loginUser.Email + "' AND Password = N'" + loginUser.Password + "'";
+            string sql = "UPDATE dbo." + TableName +
+                " SET " + nameof(loginUser.Email) + " = @" + nameof(loginUser.Email) + " , EmailConfirm = 0" +
+                " WHERE " + nameof(loginUser.Email) + " = N'" + loginUser.Email + "' AND " + nameof(loginUser.Password) + " = N'" + loginUser.Password + "'";
             //"HASHBYTES('SHA2_512',CONVERT(NVARCHAR(32),N'" + Password + "'))";
 
             await _SqlDataAccess.SaveData(sql, userEditProfile);
@@ -33,8 +37,8 @@ namespace Strona_v2.Server.Data.SqlData
         //zmiana nick
         public async Task EditName(UserLogin loginUser, UserEditProfile userEditProfile)
         {
-            string sql = "UPDATE dbo.UserData " +
-                " SET Name = @Name " +
+            string sql = "UPDATE dbo." + TableName +
+                " SET " + nameof(loginUser.Name) + " = @" + nameof(loginUser.Name) +
                 " WHERE Email = N'" + loginUser.Email + "' AND Password = N'" + loginUser.Password + "'";
             //"HASHBYTES('SHA2_512',CONVERT(NVARCHAR(32),N'" + Password + "'))";
 
@@ -43,9 +47,9 @@ namespace Strona_v2.Server.Data.SqlData
         //zmiana avataru
         public async Task EditAvatarNameString(UserLogin loginUser, UserEditProfile userEditProfile)
         {
-            string sql = "UPDATE dbo.UserData " +
-                " SET AvatarNameString = @AvatarNameString " +
-                " WHERE Email = N'" + loginUser.Email + "' AND Password = N'" + loginUser.Password + "'";
+            string sql = "UPDATE dbo." + TableName +
+                " SET " + nameof(userEditProfile.AvatarNameString) + " = @" + nameof(userEditProfile.AvatarNameString) +
+                " WHERE " + nameof(loginUser.Email) + " = N'" + loginUser.Email + "' AND " + nameof(loginUser.Password) + " = N'" + loginUser.Password + "'";
             //"HASHBYTES('SHA2_512',CONVERT(NVARCHAR(32),N'" + Password + "'))";
 
             await _SqlDataAccess.SaveData(sql, userEditProfile);
@@ -53,9 +57,9 @@ namespace Strona_v2.Server.Data.SqlData
         //zmiania hasła
         public async Task EditPassword(UserLogin loginUser, UserEditProfile userEditProfile)
         {
-            string sql = "UPDATE dbo.UserData " +
-                " SET Password = @Password " +  //zmienić na Hash jak będzie działacć
-                " WHERE Email = N'" + loginUser.Email + "' AND Password = N'" + loginUser.Password + "'";
+            string sql = "UPDATE dbo." + TableName +
+                " SET " + nameof(loginUser.Password) + " = @" + nameof(loginUser.Password) +  //zmienić na Hash jak będzie działacć
+                " WHERE " + nameof(loginUser.Email) + " = N'" + loginUser.Email + "' AND " + nameof(loginUser.Password) + " = N'" + loginUser.Password + "'";
             //"HASHBYTES('SHA2_512',CONVERT(NVARCHAR(32),N'" + Password + "'))";
 
             await _SqlDataAccess.SaveData(sql, userEditProfile);
@@ -89,5 +93,28 @@ namespace Strona_v2.Server.Data.SqlData
             }
             return false;
         }
+
+
+        //pobranie wszyskich nick
+        public async Task<List<string>> GetAllName()
+        {
+            string sql = "SELECT Name " +
+                " FROM dbo." + TableName;
+
+            return await _SqlDataAccess.LoadDataList<string>(sql);
+        }
+
+        //pobranie wszystkich emaili
+        public async Task<List<string>> GetAllEmail()
+        {
+            string sql = "SELECT Email " +
+                " FROM dbo." + TableName;
+
+            return await _SqlDataAccess.LoadDataList<string>(sql);
+        }
+
+
+
+
     }
 }

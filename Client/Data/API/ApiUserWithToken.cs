@@ -44,11 +44,8 @@ namespace Strona_v2.Client.Data.API
                 var requestContent = new StringContent(serializedUser, Encoding.UTF8, "application/json");
 
                 var result = await _httpClient.PatchAsync(Url, requestContent);
-                if (result.IsSuccessStatusCode)
-                {
-                    return result;
-                }
-                return null;
+
+                return result;
             }
             catch (Exception ex)
             {

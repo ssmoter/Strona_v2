@@ -12,7 +12,7 @@ namespace Strona_v2.Server.Data.SqlData
     public class ProfileUser : IProfileUser
     {
         private readonly ISqlDataAccess _sqlDataAccess;
-
+        private readonly string Tablename = "UserData";
         public ProfileUser(ISqlDataAccess sqlDataAccess)
         {
             _sqlDataAccess = sqlDataAccess;
@@ -22,8 +22,8 @@ namespace Strona_v2.Server.Data.SqlData
         public async Task<UserPublic> UserFullDataIntId(int Id)
         {
             string sql = "SELECT * " +
-                " FROM dbo.UserData " +
-                " WHERE Id = " + Id;
+                " FROM dbo." + Tablename +
+                " WHERE " + nameof(Id) + " = " + Id;
 
             return await _sqlDataAccess.LoadData<UserPublic>(sql);
         }
@@ -32,10 +32,11 @@ namespace Strona_v2.Server.Data.SqlData
         public async Task<UserPublic> UserFullDataStringName(string Name)
         {
             string sql = "SELECT * " +
-                " FROM dbo.UserData " +
-                " WHERE Name = N'" + Name + "'";
+                " FROM dbo." + Tablename +
+                " WHERE " + nameof(Name) + " = N'" + Name + "'";
 
             return await _sqlDataAccess.LoadData<UserPublic>(sql);
         }
+
     }
 }

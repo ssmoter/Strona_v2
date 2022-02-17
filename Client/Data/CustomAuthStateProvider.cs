@@ -32,17 +32,58 @@ namespace Strona_v2.Client.Data
                 }, "authentication type"); //bez tego nie działa ale po co to jest to nie wiem
 
                 state = new AuthenticationState(new ClaimsPrincipal(identity));
+
+                state = await UpdateOnlineAndCheckToken(state);
             }
+
+
+
             NotifyAuthenticationStateChanged(Task.FromResult(state));
-
-            //bool TokenValid = false;
-            //TokenValid = await _apiUserWithToken.UpdateLastOnline();
-            //if (!TokenValid)
-            //{
-            //    state = _anonymous;
-            //}
-
             return state;
         }
+        private async Task<AuthenticationState> UpdateOnlineAndCheckToken(AuthenticationState state)
+        {
+            bool time = await StorageDate();
+            if (time)
+            {
+                var _anonymous = new AuthenticationState(new ClaimsPrincipal());
+                bool TokenValid = false;
+                TokenValid = await _apiUserWithToken.UpdateLastOnline();
+                if (!TokenValid)
+                {
+                    await _LocalStorage.RemoveItemAsync("name");
+                    await _LocalStorage.RemoveItemAsync("email");
+                    await _LocalStorage.RemoveItemAsync("time");
+                    await _LocalStorage.RemoveItemAsync("token");
+                    return _anonymous;
+                }
+            }
+            return state;
+        }
+        private async Task<bool> StorageDate()
+        {
+            bool result = false;
+
+            DateTimeOffset time = await _LocalStorage.GetItemAsync<DateTimeOffset>(nameof(time));
+            if (time.Year == 1)
+            {
+                time = DateTimeOffset.Now;
+            }
+
+            long UnixSecond = time.ToUnixTimeSeconds() + 1;//300 = 5min
+            if (UnixSecond < DateTimeOffset.Now.ToUnixTimeSeconds())//aktuazlizacja wykonuje się max co 5min
+            {
+                await _LocalStorage.SetItemAsync<DateTimeOffset>(nameof(time), time);
+
+                result = true;
+            }
+            string timeExists = await _LocalStorage.GetItemAsync<string>(nameof(time));
+            if (string.IsNullOrEmpty(timeExists))
+            {
+                await _LocalStorage.SetItemAsync<DateTimeOffset>(nameof(time), time);
+            }
+            return result;
+        }
+
     }
 }

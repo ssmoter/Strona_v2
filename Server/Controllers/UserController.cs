@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Strona_v2.Server.Data;
 using Strona_v2.Server.Data.SqlData;
 using Strona_v2.Server.Filtres;
 using Strona_v2.Server.TokenAuthentication;
@@ -102,6 +103,15 @@ namespace Strona_v2.Server.Controllers
             }
             try
             {
+                EnableProfil enableProfil = new();
+                enableProfil.ListEmail = await _EditProfileUser.GetAllEmail();
+
+                if (enableProfil.EnableEmail(userEditProfile.Email))
+                {
+                    return BadRequest(EnableProfilEnum.Email);
+                }
+                
+
                 UserLogin loginUser = new();
                 loginUser.Email = email;
                 loginUser.Password = password;

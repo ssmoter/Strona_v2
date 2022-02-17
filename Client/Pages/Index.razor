@@ -5,26 +5,29 @@
 @inject BrowserService browserService
 @inject NavigationManager navigationManager
 
-@if (browserDimension.Width > 640)
+
+@if (@*browserDimension.Width > 640*@true)
 {
     @*<button class="btn btn-danger" @onclick="@(() => toastService.ShowToast("I'm an ERROR message", ToastLevel.Error))">Error Toast</button>*@
+    <div class="w-75">
 
 
-    <div class="float-start w-50">
-        <img src="/BlekitnaFlaga1850ST.jpg" class="img-fluid" />
+        <div class="float-start w-75 ">
+            @*Treść*@
+            <Strona_v2.Client.Pages.FIle.MainFile></Strona_v2.Client.Pages.FIle.MainFile>
+            @*<button class="btn btn-info" @onclick="@(() => toastService.ShowToast("I'm an INFO message", ToastLevel.Info))">Info Toast</button>*@
+        </div>
+        <div class="float-start w-25">
+            @*Kiedyś reklama*@
 
-        <button class="btn btn-info" @onclick="@(() => toastService.ShowToast("I'm an INFO message", ToastLevel.Info))">Info Toast</button>
+            @*<button class="btn btn-success" @onclick="@(() => toastService.ShowToast("I'm a SUCCESS message", ToastLevel.Success))">Success Toast</button>*@
+        </div>
+        @*        <div class="float-start w-50">
+            <img src="/BlekitnaFlaga1850ST.jpg" class="img-fluid" />
+
+            <button class="btn btn-warning" @onclick="@(() => toastService.ShowToast("I'm a WARNING message", ToastLevel.Warning))">Warning Toast</button>
+            </div>*@
     </div>
-    <div class="float-start w-25">
-        <img src="/BlekitnaFlaga1850ST.jpg" class="img-fluid" />
-
-        <button class="btn btn-success" @onclick="@(() => toastService.ShowToast("I'm a SUCCESS message", ToastLevel.Success))">Success Toast</button>
-    </div>
-@*    <div class="float-start w-25">
-        <img src="/BlekitnaFlaga1850ST.jpg" class="img-fluid" />
-
-        <button class="btn btn-warning" @onclick="@(() => toastService.ShowToast("I'm a WARNING message", ToastLevel.Warning))">Warning Toast</button>
-    </div>*@
 }
 else
 {
@@ -38,19 +41,19 @@ else
     {
         browserDimension = await browserService.GetBrowserDimension();
 
-        string token = await ILocalStorageService.GetItemAsync<string>(nameof(token));
-        if (!string.IsNullOrEmpty(token))
-        {
-            bool check = await IApiUserWithToken.UpdateLastOnline();
-            WrongToken(check);
-        }
+        //string token = await ILocalStorageService.GetItemAsync<string>(nameof(token));
+        //if (!string.IsNullOrEmpty(token))
+        //{
+        //    bool check = await IApiUserWithToken.UpdateLastOnline();
+        //    WrongToken(check);
+        //}
     }
 
-    private void WrongToken(bool Check)
-    {
-        if (!Check)
-        {
-            navigationManager.NavigateTo("logout");
-        }
-    }
+    //private void WrongToken(bool Check)
+    //{
+    //    if (!Check)
+    //    {
+    //        navigationManager.NavigateTo("logout");
+    //    }
+    //}
 }

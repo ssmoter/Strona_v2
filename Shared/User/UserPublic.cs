@@ -27,4 +27,11 @@ namespace Strona_v2.Shared.User
 
 
     }
+    public class UserEmailName
+    {
+        public int Id { get; set; }
+        public string? Name { get; set; }
+        public string? Email { get; set; }
+    }
+
 }

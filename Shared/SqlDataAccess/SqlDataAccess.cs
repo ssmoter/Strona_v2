@@ -16,13 +16,19 @@ namespace Strona_v2.Shared.SqlDataAccess
 
         public string ConnectionStringName { get; set; } = "Default";
 
-        public async Task<List<T>> LoadDataList<T, U>(string sql, U parameters)
+        public string GetConnectionString()
+        {
+            return _config.GetConnectionString(ConnectionStringName);
+        }
+
+
+        public async Task<List<T>> LoadDataList<T>(string sql)
         {
             string connectionString = _config.GetConnectionString(ConnectionStringName);
 
             using (IDbConnection connection = new SqlConnection(connectionString))
             {
-                var data = await connection.QueryAsync<T>(sql, parameters);
+                var data = await connection.QueryAsync<T>(sql);
                 return data.ToList();
             }
         }

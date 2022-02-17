@@ -1,3 +1,4 @@
+using Strona_v2.Server.Data.SqlCreatTable;
 using Strona_v2.Server.Data.SqlData;
 using Strona_v2.Server.TokenAuthentication;
 using Strona_v2.Shared.SqlDataAccess;
@@ -13,6 +14,8 @@ builder.Services.AddSingleton<ISqlDataAccess, SqlDataAccess>();
 builder.Services.AddSingleton<ILoginUser, LoginUser>();
 builder.Services.AddSingleton<IProfileUser, ProfileUser>();
 builder.Services.AddSingleton<IEditProfileUser, EditProfileUser>();
+builder.Services.AddSingleton<ICreatTable,CreatTable>();
+
 
 builder.Services.AddSingleton<ITokenManager, TokenManager>();
 

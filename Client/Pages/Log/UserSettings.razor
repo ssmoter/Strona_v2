@@ -8,45 +8,34 @@
 
 
 <div class="float-start">
-    <EditForm Model="userEditProfileViewModel" OnSubmit="HandChangeData">
+    <EditForm Model="userEditProfileViewModel" OnValidSubmit="HandChangeData">
         <DataAnnotationsValidator />
         <ValidationSummary />
-        <div class="row-cols-auto">
-            <div class="">
-                <label for="Name">
-                    Nick:&nbsp;
-                    <InputText @bind-Value=userEditProfileViewModel.Name></InputText>
+        <p>
+            <label>
+                Nick:
+                <InputText @bind-Value="userEditProfileViewModel.Name"></InputText>
+            </label>
+        </p>
+        <p>
+            <label>
+                Email:
+                <InputText @bind-Value="userEditProfileViewModel.Email"></InputText>
+            </label>
+        </p>
+        @if (DifferenthatNull(userEditProfileViewModel.Name) || DifferenthatNull(userEditProfileViewModel.Email))
+        {
+            <p>
+                Potwierdź się podając hasło
+            </p>
+            <p>
+                <label>
+                    Hasło:
+                    <InputText @bind-Value="userLogin.Password"></InputText>
                 </label>
-            </div>
-            <div class="">
-                <label for="Email">
-                    Email:
-                    <InputText @bind-Value=userEditProfileViewModel.Email></InputText>
-                </label>
-            </div>
-            <div>
-                <button type="submit" class="btn btn-primary">Modyfikuj</button>
-            </div>
-            @if (@AddPassowrd)
-            {
-                <div class="">
-                    Potwierdz się podając hasło
-                    <br> i kliknij enter
-                </div>
-                <div>
-                    <label for="Password">
-                        Password:
-                        <InputText type="passowrd" @bind-Value="userLogin.Password"></InputText>
-                    </label>
-                </div>
-                @if (userLogin.Password != null)
-                {
-                    <div>
-                        <span>@PasswordIsNull</span>
-                    </div>
-                }
-            }
-        </div>
+            </p>
+        }
+        <button class="btn btn-primary" type="submit">Modyfikuj</button>
     </EditForm>
 </div>
 
@@ -54,37 +43,62 @@
 @code {
     private UserEditProfileViewModel userEditProfileViewModel = new();
     private UserLogin userLogin = new();
-    private bool AddPassowrd = false;
     private string PasswordIsNull = "Podaj Hasło";
 
-    private async Task HandChangeData()
+    //pobranie danych user widzi swoje dane
+    protected override async Task OnInitializedAsync()
     {
         userLogin.Email = await _LocalStorage.GetItemAsync<string>("email");
-        AddPassowrd = !AddPassowrd;
-        if (userLogin.Password != null)
+    }
+
+    // główna metoda
+    //wysłanie zaktualizowane dane
+    //name
+    //email
+    private async Task HandChangeData()
+    {
+        if (!string.IsNullOrEmpty(userLogin.Password))
         {
-            UserEditProfile userEditProfile = new();
-            userEditProfile.Name = userEditProfileViewModel.Name;
-            userEditProfile.Email = userEditProfileViewModel.Email;
-
-            HttpResponseMessage t = await _IApiUserWithToken.EditProfilPach(userLogin, userEditProfile);
-
-            if (t.IsSuccessStatusCode)
-            {
-                UpdateLocalStorage(userEditProfile.Email, userEditProfile.Name);
-                Console.WriteLine("Zaktuzalizowano dane");
-                toastService.ShowToast("Zaktuzalizowano dane", ToastLevel.Success);
-                _Navigation.NavigateTo("");
-            }
-            else
-            {
-                toastService.ShowToast("Coś poszło nie tak", ToastLevel.Error);
-                Console.WriteLine("Coś poszło nie tak");
-            }
-
+            //if (NewDataIsDifferenthatNull(userEditProfileViewModel.Name) || NewDataIsDifferenthatNull(userEditProfileViewModel.Email) )
+            await AllIsWell();
         }
     }
 
+    private static readonly string[] Toasts = new[]
+                   {
+        "Zaktuzalizowano dane","Coś poszło nie tak" , "Email jest już wykorzystany", "Nick jest zajęty"
+    };
+
+    // wkońcu wysłanie danych
+    private async Task AllIsWell()
+    {
+        UserEditProfile userEditProfile = new();
+        userEditProfile.Name = userEditProfileViewModel.Name;
+        userEditProfile.Email = userEditProfileViewModel.Email;
+
+        var Message = await _IApiUserWithToken.EditProfilPach(userLogin, userEditProfile);
+
+        string test;
+
+        if (Message.IsSuccessStatusCode)
+        {
+            UpdateLocalStorage(userEditProfile.Email, userEditProfile.Name);
+            //Console.WriteLine("Zaktuzalizowano dane");
+            toastService.ShowToast(Toasts[0], ToastLevel.Success);
+            _Navigation.NavigateTo("");
+        }
+        //if (Message. )
+        //{
+        //    toastService.ShowToast("Zaktuzalizowano dane", ToastLevel.Success);
+        //}
+        else
+        {
+            toastService.ShowToast("Coś poszło nie tak", ToastLevel.Error);
+            Console.WriteLine("Coś poszło nie tak");
+        }
+    }
+
+    //poprawka w local storage
     private async void UpdateLocalStorage(string? email, string? name)
     {
         if (!string.IsNullOrEmpty(name))
@@ -97,8 +111,17 @@
             await _LocalStorage.RemoveItemAsync("email");
             await _LocalStorage.SetItemAsync<string>("email", email);
         }
-
     }
+    //sprawdzanie pustych stringów
+    private bool DifferenthatNull(string Data)
+    {
+        if (!string.IsNullOrEmpty(Data))
+        {
+            return true;
+        }
+        return false;
+    }
+
 
 
 }

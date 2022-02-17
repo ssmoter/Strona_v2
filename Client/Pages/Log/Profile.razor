@@ -5,59 +5,63 @@
 
 @if (UserPublic != null)
 {
-    <div class="col-auto">
-        <center
-        class="col-auto float-start">
-            <div>
-                <div>
-                    <span>Profil @UserPublic.Name</span>
-                    <span>@UserPublic.Like/-@UserPublic.UnLike</span>
-                </div>
-            </div>
-            <div>
-                <div>
-                    <label>
-                        Data założenia konta:<br />
-                        @UserPublic.DataCreat.LocalDateTime
-                    </label>
-                </div>
-                <div>
-                    <label>Ostatnio online:@LastOnline</label>
-                </div>
-            </div>
-        </center>
-        <center class="col-auto float-start">
-            &nbsp;&nbsp;<br />&nbsp;&nbsp;<br />&nbsp;&nbsp;<br />&nbsp;&nbsp;<br />&nbsp;&nbsp;<br />&nbsp;&nbsp;<br />&nbsp;&nbsp;<br />&nbsp;&nbsp;<br />
-            &nbsp;&nbsp;<br />&nbsp;&nbsp;<br />&nbsp;&nbsp;<br />&nbsp;&nbsp;<br />&nbsp;&nbsp;<br />&nbsp;&nbsp;<br />&nbsp;&nbsp;<br />&nbsp;&nbsp;<br />
-        </center>
         <div class="col-auto">
-            <AuthorizeView>
-                <Authorized>
-                    <div class="nav-item ">
-                        <div @onclick="ToggleUserMenu">
-                            <NavLink class="nav-tabs">
-                                <span class="oi oi-document" aria-hidden="true">Edytuj Dane</span>
-                            </NavLink>
+            <div class="float-start">
+                <p>
+                    <img src="/BlekitnaFlaga1850ST.jpg" alt="Avatar" style="border-radius:1rem; width:164px; height:164px;" />
+                </p>
+                <center class="col-auto">
+                    <div>
+                        <div>
+                            <span>Profil @UserPublic.Name</span>
+                            <span>@UserPublic.Like/-@UserPublic.UnLike</span>
                         </div>
                     </div>
+                    <div>
+                        <div>
+                            <label>
+                                Data założenia konta:<br />
+                            @UserPublic.DataCreat.LocalDateTime
+                            </label>
+                        </div>
+                        <div>
+                            <label>
+                                Ostatnio online:@LastOnline
+                            </label>
+                        </div>
+                    </div>
+                </center>
+            </div>
+            <center class="col-auto float-start">
+                &nbsp;&nbsp;<br />&nbsp;&nbsp;<br />&nbsp;&nbsp;<br />&nbsp;&nbsp;<br />&nbsp;&nbsp;<br />&nbsp;&nbsp;<br />&nbsp;&nbsp;<br />&nbsp;&nbsp;<br />
+                &nbsp;&nbsp;<br />&nbsp;&nbsp;<br />&nbsp;&nbsp;<br />&nbsp;&nbsp;<br />&nbsp;&nbsp;<br />&nbsp;&nbsp;<br />&nbsp;&nbsp;<br />&nbsp;&nbsp;<br />
+            </center>
+            <div class="col-auto">
+                <AuthorizeView>
+                    <Authorized>
+                        <div class="nav-item ">
+                            <div @onclick="ToggleUserMenu">
+                                <NavLink class="nav-tabs">
+                                    <span class="oi oi-document" aria-hidden="true">Edytuj Dane</span>
+                                </NavLink>
+                            </div>
+                        </div>
                     @if (ToggleUserSetting)
                     {
-                        <UserSettings></UserSettings>
+                                <UserSettings></UserSettings>
                     }
-                </Authorized>
-            </AuthorizeView>
+                    </Authorized>
+                </AuthorizeView>
+            </div>
         </div>
-        <div class="col-auto float-end">
-        </div>
-    </div>
 
-    
+
 }
 else
 {
-    <h3>
-        Loading...
-    </h3>
+        <h3>
+            Loading...
+        </h3>
 }
 
 @code {
@@ -96,15 +100,15 @@ else
         DateTimeOffset dateTime;
         dateTime = DateTimeOffset.Now;
         long DateInt = dateTime.ToUnixTimeSeconds() - UserPublic.LastOnline.ToUnixTimeSeconds();
-        if (DateInt <= 120)//sekundy
+        if (DateInt <= 300)//sekundy -5min
         {
             LastOnline = "Online";
         }
-        if (DateInt > 120 && DateInt <= 86400)//godziny
+        if (DateInt > 300 && DateInt <= 86400)//godziny do 24
         {
             LastOnline = DateTimeOffset.FromUnixTimeSeconds(DateInt).Hour.ToString() + " Godzin temu";
         }
-        if (DateInt > 86400)//dni
+        if (DateInt > 86400)//dni - od 24
         {
             LastOnline = DateTimeOffset.FromUnixTimeSeconds(DateInt).Day.ToString() + " Dni temu";
         }
