@@ -10,10 +10,11 @@
 
     public class EnableProfil
     {
-        public List<string> ListName { get; set; }
-        public List<string> ListEmail { get; set; }
+        public List<string>? ListName { get; set; }
+        public List<string>? ListEmail { get; set; }
         public EnableProfil()
-        {        }
+        {      
+        }
         public EnableProfil(List<string> listEmail, List<string> listName)
         {
             ListEmail = listEmail;
