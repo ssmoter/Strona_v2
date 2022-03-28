@@ -13,11 +13,11 @@
         }
 
         //szkielet zapytania jak wygląda tabela
-        public string CreatSqlTable(string? TableName, string? TableType)
+        public string CreatSqlTable(string? TableType, string? TableName)
         {
             string start = string.Format("USE Database_strona_v2 " +
                         " CREATE TABLE [dbo].[{0}_{1}]\n(\n", TableType, TableName);
-            string mid = "	[Id] INT NOT NULL PRIMARY KEY, \n";
+            string mid = "	[Id] INT NOT NULL PRIMARY KEY IDENTITY, \n";
             for (int i = 0; i < ColumnName.Count(); i++)
             {
                 mid += string.Format("[{0}] {1} null,\n", ColumnName[i], ColumnParametr[i]);

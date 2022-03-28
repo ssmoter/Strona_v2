@@ -8,23 +8,24 @@ namespace Strona_v2.Client.Data.API
 {
     public interface IApiUserWithToken
     {
+        HttpClient _httpClient { get; set; }
         Task<HttpResponseMessage> EditProfilPach(UserLogin userLogin, UserEditProfile usereditProfile);
         Task<bool> UpdateLastOnline();
     }
 
     public class ApiUserWithToken : IApiUserWithToken
     {
-        private HttpClient _httpClient;
+        public HttpClient _httpClient { get; set; }
         private readonly ILocalStorageService _localStorage;
         private readonly AddTokenHttpClient _addTokenHttpClient;
-        private string ApiStringName { get; set; }
+        public string ApiStringName { get; set; }
 
         public ApiUserWithToken(HttpClient httpClient, ILocalStorageService localStorage)
         {
             _httpClient = httpClient;
             _httpClient.DefaultRequestHeaders.Clear();
             UrlString _Url = new();
-            ApiStringName = _Url.Url;
+            ApiStringName = _Url.User;
 
             _addTokenHttpClient = new(localStorage);
             _localStorage = localStorage;
@@ -34,7 +35,7 @@ namespace Strona_v2.Client.Data.API
         {
             try
             {
-                _httpClient = await _addTokenHttpClient.AddHeadersAuthorization(_httpClient);
+                _httpClient = await _addTokenHttpClient.AddHeadersAuthorization();
 
                 var Url = ApiStringName + "profile/patch?email=" +
                     userLogin.Email + "&password=" + userLogin.Password;
@@ -59,7 +60,7 @@ namespace Strona_v2.Client.Data.API
         {
             try
             {
-                _httpClient = await _addTokenHttpClient.AddHeadersAuthorization(_httpClient);
+                _httpClient = await _addTokenHttpClient.AddHeadersAuthorization();
                 var Url = ApiStringName + "lastonline";
                 var result = await _httpClient.GetAsync(Url);
                 if (result.StatusCode.ToString() == "OK")

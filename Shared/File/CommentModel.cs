@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Strona_v2.Shared.File
+﻿namespace Strona_v2.Shared.File
 {
-    internal class CommentModel
+    public class CommentModel
     {
         public int Id { get; set; }
         public int FileId { get; set; }
@@ -16,7 +10,8 @@ namespace Strona_v2.Shared.File
         public int UnLike { get; set; }
         public DateTimeOffset Created { get; set; }
 
-
+        public string? ListUserIdLike { get; set; }
+        public string? ListUserIdUnLike { get; set; }
 
     }
 }

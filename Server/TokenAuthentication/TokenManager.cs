@@ -45,7 +45,7 @@ namespace Strona_v2.Server.TokenAuthentication
         private async Task<cToken> LoadToken(UserLogin user)
         {
             cToken token = await _LogInUser.CheckTokenAndTime(user.Email, user.Password);
-            if (token != null && token.Token != "")
+            if (token != null && token.Token != "" && token.Token != "NULL")
             {
                 return token;
             }
@@ -63,7 +63,7 @@ namespace Strona_v2.Server.TokenAuthentication
                 return false;
             }
             cToken testToken = await _LogInUser.CheckTokenAndTime(token);
-            if (testToken == null && testToken.Token != "")
+            if (testToken == null /*&& testToken.Token != ""*/)
             {
                 return false;
             }

@@ -1,6 +1,36 @@
-﻿<h3>MainFile</h3>
+﻿@using Strona_v2.Client.Data.File.Dowloand
+@inject IAPIFileDowloand _IAPIFileDowloand
+
+
+@if (fileModelPublics != null)
+{
+    for (int i = 0; i < fileModelPublics.Count(); i++)
+    {
+        <p>@fileModelPublics[i].Id </p>
+        <p>@fileModelPublics[i].Title</p>
+        <p>@fileModelPublics[i].Description </p>
+        <p>@fileModelPublics[i].Created</p>
+    }
+}
+else
+{
+    <a>Loading ...</a>
+}
+
+
+
+
+
 
 
 @code {
+    IList<FileModelPublic> fileModelPublics;
 
+
+    protected async override Task OnInitializedAsync()
+    {
+
+        fileModelPublics = await _IAPIFileDowloand.GetFileAsync();
+
+    }
 }

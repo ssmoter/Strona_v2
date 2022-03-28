@@ -6,49 +6,76 @@ namespace Strona_v2.Server.Data.FileData
     public class FileUpload
     {
         public int MaxAlloweFiles { get; set; } = 3; //max ilość plików
+
         public long MaxFileSize { get; set; } = 1024 * 1024 * 5;// 5MB
 
-        public int FilesProcessed  = 0;
-
-        public FileModel? _FileModel { get; set; }
+        public int FilesProcessed = 0;
 
         public Uri? ResourcePatch { get; set; }
-        string? TrustedFileName;
+
+        private string? TrustedFileName;
+
+        private string UnSaveUploads = "unsave_uploads";
 
         //główna metoda do pobierania plików
-        public async Task<FileModel> UploadAsync(IEnumerable<IFormFile> files, ILogger _logger, IWebHostEnvironment _env)
+        public async Task<FileModel> UploadAsync(IEnumerable<IFormFile> files, int UserId, ILogger _logger, IWebHostEnvironment _webHostEnvironment)
         {
-            _FileModel = new();
+            FileModel? _FileModel = new();
+            _FileModel.Files = new();
 
-            foreach (var file in files)
+            try
             {
-                var UploadResult = new FileSingleModel();
-                string UntrustedFileName = file.FileName;
-                var TrustedFileForDisplay = WebUtility.HtmlEncode(UntrustedFileName);
-
-                if (FilesProcessed < MaxAlloweFiles)
+                foreach (var file in files)
                 {
-                    //sprawdzenie pierwszego błędu
-                    UploadResult = FirstError(file, _logger, UploadResult, TrustedFileForDisplay);
+                    var UploadResult = new FileSingleModel();
+                    string UntrustedFileName = file.FileName;
+                    var TrustedFileForDisplay = WebUtility.HtmlEncode(UntrustedFileName);
 
-                    //sprawdzenie drugiego błędu
-                    UploadResult = SecondError(file, _logger, UploadResult, TrustedFileForDisplay);
+                    if (FilesProcessed < MaxAlloweFiles)
+                    {
+                        //sprawdzenie pierwszego błędu
+                        UploadResult = FirstError(file, _logger, UploadResult, TrustedFileForDisplay);
 
-                    //sprawdzenie trzeciego błedu i zapisanie pliku
-                    UploadResult = await ThirdError(file, _logger, _env, UploadResult);
+                        if (UploadResult.ErrorCode > 0)
+                        {
+                            return null;
+                        }
 
-                    //błędy są opisane niżej
+                        //sprawdzenie drugiego błędu
+                        UploadResult = SecondError(file, _logger, UploadResult, TrustedFileForDisplay);
+                        if (UploadResult.ErrorCode > 0)
+                        {
+                            return null;
+                        }
+                        //sprawdzenie trzeciego błedu i zapisanie pliku
+                        UploadResult = await SuccessfullyError(file, UserId, _logger, _webHostEnvironment, UploadResult);
+                        if (UploadResult.ErrorCode > 0)
+                        {
+                            return null;
+                        }
+                        //błędy są opisane niżej
 
-                    //sprawdzenie kolejnego pliku
-                    FilesProcessed++;
+                        //sprawdzenie kolejnego pliku
+                        FilesProcessed++;
+                    }
+                    else
+                    {
+                        //sprawdzenie czwartego błedu
+                        UploadResult = FourthError(file, _logger, UploadResult, TrustedFileForDisplay);
+                    }
+                    _FileModel.Files.Add(UploadResult);
                 }
-                else
-                {
-                    //sprawdzenie czwartego błedu
-                    UploadResult = FourthError(file, _logger, UploadResult, TrustedFileForDisplay);
-                }
-                _FileModel.Files.Add(UploadResult);
             }
+            catch (Exception ex)
+            {
+                _logger.LogInformation(ex.Message);
+                throw;
+            }
+
+            _FileModel.Path = Path.Combine(_webHostEnvironment.ContentRootPath, _webHostEnvironment.EnvironmentName, UnSaveUploads);
+
+            _FileModel.Created = DateTimeOffset.Now;
+
             return _FileModel;
         }
 
@@ -78,7 +105,7 @@ namespace Strona_v2.Server.Data.FileData
         }
 
         //wszystko się zgadza plik został zapisany
-        protected async Task<FileSingleModel> ThirdError(IFormFile file, ILogger _logger, IWebHostEnvironment _env, FileSingleModel fileSingleModel)
+        protected async Task<FileSingleModel> SuccessfullyError(IFormFile file, int UserId, ILogger _logger, IWebHostEnvironment _env, FileSingleModel fileSingleModel)
         {
             if (file.Length != 0 && file.Length < MaxFileSize)
             {
@@ -86,10 +113,8 @@ namespace Strona_v2.Server.Data.FileData
                 {
                     //bezpieczna nazwa
                     TrustedFileName = Path.GetRandomFileName();
-                    string UnSave_Uploads = "unsave_uploads";
-
                     //ścieżka do pliku
-                    var _Patch = Path.Combine(_env.ContentRootPath, _env.EnvironmentName, UnSave_Uploads);
+                    var _Patch = Path.Combine(_env.ContentRootPath, _env.EnvironmentName, "unsafe_uploads", UserId.ToString());
                     CreatFolder(_Patch);
                     _Patch = Path.Combine(_Patch, TrustedFileName);
 
@@ -99,6 +124,10 @@ namespace Strona_v2.Server.Data.FileData
                     _logger.LogInformation("{TrustedFileName} saved at {Patch}", TrustedFileName, _Patch);
                     fileSingleModel.Uploaded = true;
                     fileSingleModel.StoredFileName = TrustedFileName;
+                    fileSingleModel.ErrorCode = 0;
+                    fileSingleModel.Type = SplitTyp(file.FileName);
+
+
 
                     return fileSingleModel;
                 }
@@ -111,6 +140,14 @@ namespace Strona_v2.Server.Data.FileData
                 }
             }
             return fileSingleModel;
+        }
+
+        //wycięcie typu pliku
+        private string SplitTyp(string UnTrusted)
+        {
+            var type = UnTrusted.Split('.');
+
+            return type[1];
         }
 
         //stworzenie folderu gdzie zapisuje się plik

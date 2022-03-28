@@ -144,6 +144,7 @@ namespace Strona_v2.Server.Controllers
         [HttpGet]
         [Route("lastonline")]
         [TokenAuthenticationFilter]
+        //sprawdzanie kiedy user był ostatnio online i czy token nie był modyfikowany
         public async Task<IActionResult> UpdateLastOnline()
         {
             string token = HttpContext.Request.Headers.FirstOrDefault(x => x.Key == "Authorization").Value;

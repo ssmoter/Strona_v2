@@ -23,7 +23,13 @@ namespace Strona_v2.Shared.File
         public bool Main { get; set; }
         public string? Path { get; set; }
 
-        public List<FileSingleModel> Files { get; set; }
+        public string? ListUserIdLike { get; set; }
+        public string? ListUserIdSpam { get; set; }
+
+        public string? StoredFileName { get; set; }
+        public string? Type { get; set; }
+
+        public List<FileSingleModel>? Files { get; set; }
     }
 
     public class FileSingleModel
@@ -35,5 +41,24 @@ namespace Strona_v2.Shared.File
         public int ErrorCode { get; set; }
 
     }
+
+    public class FileModelPublic
+    {
+        public int Id { get; set; }
+        public string? Title { get; set; }
+        public string? Description { get; set; }
+        public string? Tag { get; set; }
+        public int UserId { get; set; }
+        public int Like { get; set; }
+        public int Spam { get; set; }
+        public DateTimeOffset? Created { get; set; }
+        public bool Main { get; set; }
+        public string? ListUserIdLike { get; set; }
+        public string? ListUserIdSpam { get; set; }
+        public string? StoredFileName { get; set; }
+        public string? Type { get; set; }
+    }
+
+
 
 }

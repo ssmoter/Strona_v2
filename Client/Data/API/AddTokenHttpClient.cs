@@ -14,10 +14,10 @@ namespace Strona_v2.Client.Data.API
             localStorage = LocalStorageService;
         }
 
-        public async Task<HttpClient> AddHeadersAuthorization(HttpClient httpClient)
+        public async Task<HttpClient> AddHeadersAuthorization()
         {
             Token = await localStorage.GetItemAsync<string>("token");
-            httpClient= new HttpClient();
+            var httpClient = new HttpClient();
             httpClient.DefaultRequestHeaders.Clear();
             httpClient.DefaultRequestHeaders.Add(Auth, Token);
             return httpClient;

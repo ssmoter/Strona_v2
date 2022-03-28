@@ -1,0 +1,154 @@
+﻿@using Strona_v2.Client.Data.File.Upload
+
+@inject ILogger<UploadFile> _logger;
+@inject IUploadFileApi _fileApi;
+
+
+<div class="container-fluid">
+    <div class="col-auto">
+        @if (uploadFile.Error != null)
+        {
+            @for (int i = 0; i < uploadFile.Error.TableBool.Count(); i++)
+            {
+                @if (!uploadFile.Error.TableBool[i])
+                {
+                    <div class="blazor-error-boundary">
+                        <p>Nr pliku: @i posiada błąd: </p>
+                        <p>@uploadFile.Error.TableString[i]</p>
+                    </div>
+                }
+            }
+        }
+    </div>
+    <div class="float-start ">
+        <h3>Schemat</h3>
+        <p>
+            <div>
+                <label>
+                    Plik:<br />
+                    <InputFile OnChange="Preview" multiple></InputFile>
+                </label>
+            </div>
+        </p>
+        <EditForm Model="filePublic" OnValidSubmit="FileUpload">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+            <p>
+                <div>
+                    <label>
+                        Tytuł:<br />
+                        <InputTextArea @bind-Value="@filePublic.Title"></InputTextArea>
+                    </label>
+                </div>
+            </p>
+            <p>
+                <div>
+                    <label>
+                        Opis:<br />
+                        <InputTextArea @bind-Value="filePublic.Description"></InputTextArea>
+                    </label>
+                </div>
+            </p>
+            <p>
+                <div>
+                    <label>
+                        Tag:<br />
+                        <InputTextArea @bind-Value="filePublic.Tag"></InputTextArea>
+                    </label>
+                </div>
+            </p>
+            <button type="submit">Prześlij</button>
+        </EditForm>
+    </div>
+
+    <div>
+        <h3>Podgląd</h3>
+        <div class="">
+            <div>
+                <h3 class="text-center">
+                    @filePublic.Title
+                </h3>
+            </div>
+            <div>
+                <p>
+                    @filePublic.Description
+                </p>
+            </div>
+            <div>
+                <p>
+                    @filePublic.Tag
+                </p>
+            </div>
+            <div class="text-center">
+                @if (uploadFile.ImgDataUri != null)
+                {
+                    <div class="col-auto">
+                        @for (var i = 0; i < uploadFile.ImgDataUri.Count(); i++)
+                        {
+                            <img class="img-fluid" src="@uploadFile.ImgDataUri[i]" style="max-width:" />
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@code {
+    FileModel filePublic = new(); //model obiektu
+    FileModel modelPreview = new();
+    UploadFileBase uploadFile = new(); //model podlądu pliku
+
+    private bool shouldRender;
+    protected override bool ShouldRender() => shouldRender;
+
+    private async Task Preview(InputFileChangeEventArgs InputFile)
+    {
+        shouldRender = false;
+
+        uploadFile = new();
+        uploadFile.MaxAllowedFiles = 5; //ilość plików
+        uploadFile.SetMaxFileSizeMb(5); //wielkośc plików
+        try
+        {
+            uploadFile.Error = new(uploadFile.SizeOfList(InputFile) + 1); //wielkość tablicy z błędami
+            uploadFile.CheckAllowedFiles(InputFile);    //sprawdzenie ilości przesłanych plików
+            uploadFile.CheckFileType(InputFile);        //sprawdzenie typów plików
+            uploadFile.CheckFileSize(InputFile);        // sprawdzenie wielkości plików
+
+            await uploadFile.CastToString(InputFile);   //podgląd
+
+            shouldRender = true;
+        }
+        catch (Exception exce)
+        {
+            _logger.LogInformation(exce.Message);
+        }
+
+    }
+
+    private async Task FileUpload()
+    {
+
+        FileModelPublic modelPublic = new();
+
+        modelPublic.Title = filePublic.Title;
+        modelPublic.Description = filePublic.Description;
+        modelPublic.Tag = filePublic.Tag;
+        modelPublic.UserId = 1;
+
+        try
+        {
+            var resutl = _fileApi.PostFile(uploadFile.InputFileChange, modelPublic.UserId, _logger);
+        }
+        catch (Exception exce)
+        {
+            _logger.LogInformation(exce.Message);
+        }
+
+    }
+
+
+
+}
