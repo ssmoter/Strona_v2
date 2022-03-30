@@ -37,20 +37,20 @@
 
     protected override Task OnAfterRenderAsync(bool firstRender)
     {
-        var resultName = localstorage.GetItemAsString("name");
+        var resultName = localstorage.GetItem<UserLocalStorage>(nameof(UserLocalStorage));
         if (resultName != null)
         {
-            UserName = resultName.Trim('"');
+            UserName = resultName.Name.Trim('"');
         }
 
         return base.OnAfterRenderAsync(firstRender);
     }
     private void GoToProfile()
     {
-        var resultName = localstorage.GetItemAsString("name");
+        var resultName = localstorage.GetItem<UserLocalStorage>(nameof(UserLocalStorage));
         if (resultName != null)
         {
-            UserName = resultName.Trim('"');
+            UserName = resultName.Name.Trim('"');
         }
         NavigationM.NavigateTo("/profile/" + UserName);
     }

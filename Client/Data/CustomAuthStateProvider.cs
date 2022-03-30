@@ -1,6 +1,7 @@
 ﻿using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
 using Strona_v2.Client.Data.API;
+using Strona_v2.Shared.User;
 using System.Security.Claims;
 
 namespace Strona_v2.Client.Data
@@ -22,21 +23,24 @@ namespace Strona_v2.Client.Data
         {
             var state = new AuthenticationState(new ClaimsPrincipal());
 
-            string username = await _LocalStorage.GetItemAsStringAsync("name");
-            string token = await _LocalStorage.GetItemAsStringAsync("token");
-            if (!string.IsNullOrEmpty(username) && !string.IsNullOrEmpty(token))
+
+            UserLocalStorage userLocal = new();
+            userLocal = await _LocalStorage.GetItemAsync<UserLocalStorage>(nameof(UserLocalStorage));
+
+            if (userLocal != null)
             {
-                var identity = new ClaimsIdentity(new[]
+                if (!string.IsNullOrEmpty(userLocal.Name) && !string.IsNullOrEmpty(userLocal.Token))
                 {
-                    new Claim(ClaimTypes.Name, username,ClaimTypes.SerialNumber,token),
+                    var identity = new ClaimsIdentity(new[]
+                    {
+                    new Claim(ClaimTypes.Name, userLocal.Name,ClaimTypes.SerialNumber,userLocal.Token),
                 }, "authentication type"); //bez tego nie działa ale po co to jest to nie wiem
 
-                state = new AuthenticationState(new ClaimsPrincipal(identity));
+                    state = new AuthenticationState(new ClaimsPrincipal(identity));
 
-                state = await UpdateOnlineAndCheckToken(state);
+                    // state = await UpdateOnlineAndCheckToken(state);
+                }
             }
-
-
 
             NotifyAuthenticationStateChanged(Task.FromResult(state));
             return state;
@@ -51,10 +55,8 @@ namespace Strona_v2.Client.Data
                 TokenValid = await _apiUserWithToken.UpdateLastOnline();
                 if (!TokenValid)
                 {
-                    await _LocalStorage.RemoveItemAsync("name");
-                    await _LocalStorage.RemoveItemAsync("email");
-                    await _LocalStorage.RemoveItemAsync("time");
-                    await _LocalStorage.RemoveItemAsync("token");
+                    await _LocalStorage.RemoveItemAsync(nameof(UserLocalStorage));
+
                     return _anonymous;
                 }
             }

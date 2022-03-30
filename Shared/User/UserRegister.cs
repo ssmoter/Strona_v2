@@ -4,8 +4,6 @@ namespace Strona_v2.Shared.User
 {
     public class UserRegister
     {
-        public int Id { get; set; }
-
         public string? Name { get; set; }
 
         [Required(ErrorMessage = "Email jest wymagany")]

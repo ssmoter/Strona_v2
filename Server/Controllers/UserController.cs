@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using HashidsNet;
+using Microsoft.AspNetCore.Mvc;
 using Strona_v2.Server.Data;
 using Strona_v2.Server.Data.SqlData;
 using Strona_v2.Server.Filtres;
@@ -19,16 +20,20 @@ namespace Strona_v2.Server.Controllers
         private readonly ITokenManager _tokenManager;
         private readonly IProfileUser _ProfileUser;
         private readonly IEditProfileUser _EditProfileUser;
+        private readonly IHashids _hashids;
+
 
         public UserController(ILoginUser LogInUser,
             ITokenManager TokenManager,
             IProfileUser ProfileUser,
-            IEditProfileUser EditProfileUser)
+            IEditProfileUser EditProfileUser,
+            IHashids hashids)
         {
             _LogInUser = LogInUser;
             _tokenManager = TokenManager;
             _ProfileUser = ProfileUser;
             _EditProfileUser = EditProfileUser;
+            _hashids = hashids;
         }
 
         // GET api/<UserController>/5
@@ -47,6 +52,9 @@ namespace Strona_v2.Server.Controllers
                     cToken token = await _tokenManager.NewToken(user);
                     user.Token = token.Token;
                     user.ExpiryDate = token.ExpiryDate;
+
+                    user.SecondId=_hashids.Encode(user.Id,11);
+                    user.Id = -1;
                     return Ok(user);
                     //return Ok(new { Token = _tokenManager.NewToken(user) });
                 }
@@ -62,18 +70,18 @@ namespace Strona_v2.Server.Controllers
         //Pobieranie danych do obejrzenia profilu
         [HttpGet]
         [Route("profile")]
-        public async Task<IActionResult> ProfileData(int? id, string? userName)
+        public async Task<IActionResult> ProfileData(/*int? id,*/ string? userName)
         {
             UserPublic userFull;
             try
             {
                 //pobieranie po id 
-                if (id >= 0)
-                {
-                    userFull = await _ProfileUser.UserFullDataIntId((int)id);
+                //if (id >= 0)
+                //{
+                //    userFull = await _ProfileUser.UserFullDataIntId((int)id);
 
-                    return Ok(userFull);
-                }
+                //    return Ok(userFull);
+                //}
                 //pobieranie po nick
                 if (userName != null)
                 {

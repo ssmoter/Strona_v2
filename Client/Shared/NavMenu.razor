@@ -51,7 +51,7 @@
     </nav>
 </div>
 
-    @code {
+@code {
     private bool collapseNavMenu = true;
 
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
@@ -61,7 +61,8 @@
     //pobranie nazwy użytkownia do przezucenia go do jego profilu
     private void TakeUserName()
     {
-        UserName = LocalStorage.GetItem<string>("name");
+        var userLocal = LocalStorage.GetItem<UserLocalStorage>(nameof(UserLocalStorage));
+        UserName = userLocal.Name;
     }
 
     private void ToggleNavMenu()

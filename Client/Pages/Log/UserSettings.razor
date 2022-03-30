@@ -4,7 +4,7 @@
 @inject ILocalStorageService _LocalStorage
 @inject IApiUserWithToken _IApiUserWithToken
 @inject NavigationManager _Navigation
-@inject ToastService toastService
+@inject ToastService _toastService
 
 
 <div class="float-start">
@@ -44,11 +44,13 @@
     private UserEditProfileViewModel userEditProfileViewModel = new();
     private UserLogin userLogin = new();
     private string PasswordIsNull = "Podaj Hasło";
+    private UserLocalStorage UserStorage = new();
 
     //pobranie danych user widzi swoje dane
     protected override async Task OnInitializedAsync()
     {
-        userLogin.Email = await _LocalStorage.GetItemAsync<string>("email");
+        UserStorage = await _LocalStorage.GetItemAsync<UserLocalStorage>(nameof(UserLocalStorage));
+        userLogin.Email = UserStorage.Email;
     }
 
     // główna metoda
@@ -65,7 +67,7 @@
     }
 
     private static readonly string[] Toasts = new[]
-                   {
+                                   {
         "Zaktuzalizowano dane","Coś poszło nie tak" , "Email jest już wykorzystany", "Nick jest zajęty"
     };
 
@@ -83,16 +85,12 @@
         {
             UpdateLocalStorage(userEditProfile.Email, userEditProfile.Name);
             //Console.WriteLine("Zaktuzalizowano dane");
-            toastService.ShowToast(Toasts[0], ToastLevel.Success);
+            _toastService.ShowToast(Toasts[0], ToastLevel.Success);
             _Navigation.NavigateTo("");
         }
-        //if (Message. )
-        //{
-        //    toastService.ShowToast("Zaktuzalizowano dane", ToastLevel.Success);
-        //}
         else
         {
-            toastService.ShowToast("Coś poszło nie tak", ToastLevel.Error);
+            _toastService.ShowToast(Toasts[1], ToastLevel.Error);
             Console.WriteLine("Coś poszło nie tak");
         }
     }
@@ -102,15 +100,18 @@
     {
         if (!string.IsNullOrEmpty(name))
         {
-            await _LocalStorage.RemoveItemAsync("name");
-            await _LocalStorage.SetItemAsync<string>("name", name);
+            UserStorage.Name = name;
         }
         if (!string.IsNullOrEmpty(email))
         {
-            await _LocalStorage.RemoveItemAsync("email");
-            await _LocalStorage.SetItemAsync<string>("email", email);
+            UserStorage.Email = email;
         }
+
+        await _LocalStorage.RemoveItemAsync(nameof(UserLocalStorage));
+        await _LocalStorage.SetItemAsync<UserLocalStorage>(nameof(UserLocalStorage), UserStorage);
+
     }
+
     //sprawdzanie pustych stringów
     private bool DifferenthatNull(string Data)
     {

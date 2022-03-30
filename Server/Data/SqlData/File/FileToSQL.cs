@@ -5,10 +5,10 @@ namespace Strona_v2.Server.Data.SqlData.File
 {
     public interface IFileToSQL
     {
-        Task CreateFile(FileModel file);
-        Task<FileModel> GetFileModel(FileModel file);
-        Task<IList<FileModel>> GetFileModels();
-        Task UpdateFile(FileModel file);
+        Task CreateFile(FileModelServer file);
+        Task<FileModelServer> GetFileModel(FileModelServer file);
+        Task<IList<FileModelServer>> GetFileModels();
+        Task UpdateFile(FileModelServer file);
     }
 
     public class FileToSQL : IFileToSQL
@@ -21,29 +21,23 @@ namespace Strona_v2.Server.Data.SqlData.File
         }
 
         //zapisywanie danych pod nowy szereg
-        public async Task CreateFile(FileModel file)
+        public async Task CreateFile(FileModelServer file)
         {
             string sql = "INSERT INTO dbo." + TableName +
                 " \n(" + nameof(file.Title) + ", " + nameof(file.Description) + ", " + nameof(file.Tag) +
-                ", " + nameof(file.UserId) + ", " + nameof(file.Created) + ", " + nameof(file.Path) +
+                ", " + nameof(file.UserId) + ", " + nameof(file.Created)  +
                  ", " + nameof(file.StoredFileName) + ", " + nameof(file.Type) +
                 ") \nVALUES \n(@" +
                 nameof(file.Title) + ", @" + nameof(file.Description) + ", @" + nameof(file.Tag) +
-                ", @" + nameof(file.UserId) + ", @" + nameof(file.Created) + ", @" + nameof(file.Path) + ", @" +
+                ", @" + nameof(file.UserId) + ", @" + nameof(file.Created) + ", @" +
                  nameof(file.StoredFileName) + ", @" + nameof(file.Type) + ")";
-
-            string sq = "INSERT INTO dbo.FileData "+
-               " (Title, Description, Tag, UserId, Created, Path, StoredFileName, Type)"+
-               " VALUES"+
-               " (@Title, @Description, @Tag, @UserId, @Created, @Path, @StoredFileName, @Type)";
-
 
             await _SqlDataAccess.SaveData(sql, file);
 
         }
 
         //dopisanie nowego pliku do istniejącego szeregu 
-        public async Task UpdateFile(FileModel file)
+        public async Task UpdateFile(FileModelServer file)
         {
             string sql = "UPDATE dbo." + TableName +
                 " SET " + nameof(file.StoredFileName) + " = @" + nameof(file.StoredFileName) +
@@ -63,23 +57,23 @@ namespace Strona_v2.Server.Data.SqlData.File
         }
 
         //pobranie jednego obiektu
-        public async Task<FileModel> GetFileModel(FileModel file)
+        public async Task<FileModelServer> GetFileModel(FileModelServer file)
         {
             string sql = "SELECT * " +
                 " FROM dbo." + TableName +
                 " WHERE " + nameof(file.Id) + " = " + file.Id;
 
 
-            return await _SqlDataAccess.LoadData<FileModel>(sql);
+            return await _SqlDataAccess.LoadData<FileModelServer>(sql);
         }
 
         //pobranie listy
-        public async Task<IList<FileModel>> GetFileModels()
+        public async Task<IList<FileModelServer>> GetFileModels()
         {
             string sql = "SELECT * " +
                    " FROM dbo." + TableName;
 
-            return await _SqlDataAccess.LoadDataList<FileModel>(sql);
+            return await _SqlDataAccess.LoadDataList<FileModelServer>(sql);
         }
 
     }

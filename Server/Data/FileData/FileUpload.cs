@@ -18,9 +18,9 @@ namespace Strona_v2.Server.Data.FileData
         private string UnSaveUploads = "unsave_uploads";
 
         //główna metoda do pobierania plików
-        public async Task<FileModel> UploadAsync(IEnumerable<IFormFile> files, int UserId, ILogger _logger, IWebHostEnvironment _webHostEnvironment)
+        public async Task<FileModelServer> UploadAsync(IEnumerable<IFormFile> files, int UserId, ILogger _logger, IWebHostEnvironment _webHostEnvironment)
         {
-            FileModel? _FileModel = new();
+            FileModelServer? _FileModel = new();
             _FileModel.Files = new();
 
             try
@@ -73,14 +73,18 @@ namespace Strona_v2.Server.Data.FileData
             }
 
             _FileModel.Path = Path.Combine(_webHostEnvironment.ContentRootPath, _webHostEnvironment.EnvironmentName, UnSaveUploads);
+            
+             var combine = CombineString(_FileModel.Files);
 
-            _FileModel.Created = DateTimeOffset.Now;
+            _FileModel.StoredFileName = combine.StoredFileName;
+            _FileModel.Type=combine.Type;
+
 
             return _FileModel;
         }
 
         //sprawdznie czy jakieś plik został przesłany 
-        protected FileSingleModel FirstError(IFormFile file, ILogger _logger, FileSingleModel fileSingleModel, string FileName)
+        private FileSingleModel FirstError(IFormFile file, ILogger _logger, FileSingleModel fileSingleModel, string FileName)
         {
             if (file.Length == 0)
             {
@@ -92,7 +96,7 @@ namespace Strona_v2.Server.Data.FileData
         }
 
         //sprawdzenie czy nie przesłano za dużego pliku (czy mb się zgadza)
-        protected FileSingleModel SecondError(IFormFile file, ILogger _logger, FileSingleModel fileSingleModel, string FileName)
+        private FileSingleModel SecondError(IFormFile file, ILogger _logger, FileSingleModel fileSingleModel, string FileName)
         {
             if (file.Length > MaxFileSize)
             {
@@ -105,7 +109,7 @@ namespace Strona_v2.Server.Data.FileData
         }
 
         //wszystko się zgadza plik został zapisany
-        protected async Task<FileSingleModel> SuccessfullyError(IFormFile file, int UserId, ILogger _logger, IWebHostEnvironment _env, FileSingleModel fileSingleModel)
+        private async Task<FileSingleModel> SuccessfullyError(IFormFile file, int UserId, ILogger _logger, IWebHostEnvironment _env, FileSingleModel fileSingleModel)
         {
             if (file.Length != 0 && file.Length < MaxFileSize)
             {
@@ -150,8 +154,21 @@ namespace Strona_v2.Server.Data.FileData
             return type[1];
         }
 
+        //Przypisanie wielu plików do jednego stringa
+        private FileModelClient CombineString(List<FileSingleModel> files)
+        {
+            FileModelClient file = new();
+
+            for (int i = 0; i < files.Count; i++)
+            {
+                file.StoredFileName += files[i].StoredFileName + " / ";
+                file.Type += files[i].Type + " / ";
+            }
+            return file;
+        }
+
         //stworzenie folderu gdzie zapisuje się plik
-        protected void CreatFolder(string Patch)
+        private void CreatFolder(string Patch)
         {
             if (!System.IO.File.Exists(Patch))
             {
@@ -160,7 +177,7 @@ namespace Strona_v2.Server.Data.FileData
         }
 
         //sprawdzenie czy nie przesłało się za dużo plików
-        protected FileSingleModel FourthError(IFormFile file, ILogger _logger, FileSingleModel fileSingleModel, string FileName)
+        private FileSingleModel FourthError(IFormFile file, ILogger _logger, FileSingleModel fileSingleModel, string FileName)
         {
             if (file.Length == 0)
             {

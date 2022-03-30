@@ -8,9 +8,9 @@
 @code {
     protected override async Task OnInitializedAsync()
     {
-        LocalStorage.RemoveItem("name");
-        LocalStorage.RemoveItem("token");
-        LocalStorage.RemoveItem("email");
+        LocalStorage.RemoveItem(nameof(UserLocalStorage));
+        LocalStorage.RemoveItem("time");
+
         AuthState.GetAuthenticationStateAsync();
 
         navigationManager.NavigateTo("/");

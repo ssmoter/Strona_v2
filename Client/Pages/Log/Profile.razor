@@ -1,5 +1,4 @@
-﻿@page "/Profile/{Id:int}"
-@page "/Profile/{UserName}"
+﻿@page "/Profile/{UserName}"
 
 @inject IApiUser _ApiUser
 
@@ -66,19 +65,12 @@ else
 
 @code {
     [Parameter]
-    public int Id { get; set; }
-
-    [Parameter]
     public string? UserName { get; set; }
 
     private string? Name;
     private UserPublic? UserPublic;
     protected override async Task OnInitializedAsync()
     {
-        if (Id > 0)
-        {
-            UserPublic = await _ApiUser.ProfileUserPublic(Id);
-        }
         if (UserName != null)
         {
             Name = UserName.Trim('"');

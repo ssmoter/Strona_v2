@@ -7,8 +7,8 @@ namespace Strona_v2.Server.Data.FileData
 {
     public interface ISaveFileToSQL
     {
-        Task SaveAsync(FileModel fileModel, ILogger logger);
-        Task<bool> SaveAsyncReapit(FileModel fileModel, ILogger logger);
+        Task<bool> SaveAsync(FileModelServer fileModel, ILogger logger);
+        Task<bool> SaveAsyncReapit(FileModelServer fileModel, ILogger logger);
     }
 
     public class SaveFileToSQL : ISaveFileToSQL
@@ -25,40 +25,34 @@ namespace Strona_v2.Server.Data.FileData
 
 
         //Zapisanie danych do bazy danych i utworzenie nowej tabeli
-        public async Task SaveAsync(FileModel fileModel, ILogger logger)
+        public async Task<bool> SaveAsync(FileModelServer fileModel, ILogger logger)
         {
-            fileModel.Created = DateTime.Now;
-
-            if (fileModel.Files != null)
-            {
-                fileModel.StoredFileName = CombineToOne(fileModel, 1);
-                fileModel.Type = CombineToOne(fileModel, 2);
-            }
             try
             {
                 //zapisanie danych do sql
                 await fileToSQL.CreateFile(fileModel);
 
-                IList<FileModel> mode = await fileToSQL.GetFileModels(); 
+                IList<FileModelServer> mode = await fileToSQL.GetFileModels(); 
 
                 int id = mode[mode.Count - 1].Id;
                 fileModel.Id = id;
                 //stworzenie tabeli do komentarzy
                 await CreatedTabelForComment(id);
+                return true;
             }
             catch (Exception ex)
             {
                 logger.LogInformation("Error:" + ex.Message);
-                throw;
+                return false;
             }
         }
 
         //Przy błędzie możliwość ponownego dopisania obrazów do tego samego rekordu
-        public async Task<bool> SaveAsyncReapit(FileModel fileModel, ILogger logger)
+        public async Task<bool> SaveAsyncReapit(FileModelServer fileModel, ILogger logger)
         {
             bool result = false;
 
-            FileModel file = await fileToSQL.GetFileModel(fileModel);
+            FileModelServer file = await fileToSQL.GetFileModel(fileModel);
 
             if (file.Created.Value.Year == DateTimeOffset.Now.Year && file.Created.Value.Day == DateTimeOffset.Now.Day)
             {
@@ -89,7 +83,7 @@ namespace Strona_v2.Server.Data.FileData
 
         //połączenie listy nazw w jeden string ; nr = 1
         //połączenie listy typów w jeden string ;nr = 2
-        private string? CombineToOneReapit(FileModel fileModel, FileModel file, int n)
+        private string? CombineToOneReapit(FileModelServer fileModel, FileModelServer file, int n)
         {
             string result = string.Empty;
 
@@ -120,36 +114,6 @@ namespace Strona_v2.Server.Data.FileData
             }
         }
 
-        //połączenie listy nazw w jeden string ; nr = 1
-        //połączenie listy typów w jeden string ;nr = 2
-        private string? CombineToOne(FileModel fileModel, int n)
-        {
-            string result = string.Empty;
-
-            switch (n)
-            {
-                case 1:
-                    for (int i = 0; i < fileModel.Files.Count; i++)
-                    {
-                        if (fileModel.Files[i].ErrorCode != 0)
-                        {
-                            result += fileModel.Files[i].StoredFileName + " ";
-                        }
-                    }
-                    return result;
-                case 2:
-                    for (int i = 0; i < fileModel.Files.Count; i++)
-                    {
-                        if (fileModel.Files[i].ErrorCode != 0)
-                        {
-                            result += fileModel.Files[i].Type + " ";
-                        }
-                    }
-                    return result;
-                default:
-                    return String.Empty;
-            }
-        }
 
         //utworzenie nowej tabeli dla komentarzy 
         private async Task<bool> CreatedTabelForComment(int FileId)

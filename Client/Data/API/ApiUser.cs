@@ -42,24 +42,28 @@ namespace Strona_v2.Client.Data.API
         }
 
         //pobranie profilu usera po Id
-        public async Task<UserPublic?> ProfileUserPublic(int Id)
-        {
-            try
-            {
-                var Url = ApiStringName + "profile?id=" + Id;
-                var result = await _httpClient.GetFromJsonAsync<UserPublic>(Url);
-                if (result != null)
-                {
-                    return result;
-                }
-                return null;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                throw;
-            }
-        }
+        //public async Task<UserPublic?> ProfileUserPublic(int Id)
+        //{
+        //    try
+        //    {
+        //        var Url = ApiStringName + "profile?id=" + Id;
+        //        var result = await _httpClient.GetFromJsonAsync<UserPublic>(Url);
+        //        if (result != null)
+        //        {
+        //            return result;
+        //        }
+        //        return null;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine(ex.Message);
+        //        throw;
+        //    }
+        //}
+       
+        
+        
+        
         //pobranie profilu usera po nick
         public async Task<UserPublic?> ProfileUserPublic(string UserName)
         {

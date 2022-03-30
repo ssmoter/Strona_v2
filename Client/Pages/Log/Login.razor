@@ -44,9 +44,16 @@
         {
             CorrectLoginBool = false;
             Console.WriteLine("log me in!");
-            await LocalStorage.SetItemAsync<string>("name", LogUser.Name);
-            await LocalStorage.SetItemAsync<string>("token", LogUser.Token);
-            await LocalStorage.SetItemAsync<string>("email", LogUser.Email);
+
+
+            UserLocalStorage userLocal = new();
+            userLocal.Name = LogUser.Name;
+            userLocal.Email = LogUser.Email;
+            userLocal.Token = LogUser.Token;
+            userLocal.Id = LogUser.SecondId;
+
+            await LocalStorage.SetItemAsync<UserLocalStorage>(nameof(UserLocalStorage), userLocal);
+
             await AuthStateProvider.GetAuthenticationStateAsync();
             NavigationManager.NavigateTo("");
         }

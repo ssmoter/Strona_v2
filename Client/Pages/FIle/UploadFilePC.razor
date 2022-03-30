@@ -2,7 +2,7 @@
 
 @inject ILogger<UploadFile> _logger;
 @inject IUploadFileApi _fileApi;
-
+@inject ToastService _toast;
 
 <div class="container-fluid">
     <div class="col-auto">
@@ -96,13 +96,22 @@
 
 
 @code {
-    FileModel filePublic = new(); //model obiektu
-    FileModel modelPreview = new();
+    FileModelClient filePublic = new(); //model obiektu
     UploadFileBase uploadFile = new(); //model podlądu pliku
 
     private bool shouldRender;
     protected override bool ShouldRender() => shouldRender;
 
+    private static readonly string[] Toasts = new[]
+                                                       {
+        "Wysłano pliki",                  //0
+        "Błąd przy wysyłaniu pliku" ,     //1
+        "Podgląd nie dostępny",           //2
+        "Mem Udostępniony",               //3
+        "Coś poszło nie tak ponów próbe"  //4
+    };
+
+    //podgląd pliku
     private async Task Preview(InputFileChangeEventArgs InputFile)
     {
         shouldRender = false;
@@ -123,30 +132,49 @@
         }
         catch (Exception exce)
         {
+            _toast.ShowToast(Toasts[2], ToastLevel.Error);
             _logger.LogInformation(exce.Message);
         }
-
     }
 
+
+    //wysłanie pliku i modelu
     private async Task FileUpload()
     {
 
-        FileModelPublic modelPublic = new();
+        FileModelClient modelPublic = new();
 
         modelPublic.Title = filePublic.Title;
         modelPublic.Description = filePublic.Description;
         modelPublic.Tag = filePublic.Tag;
-        modelPublic.UserId = 1;
 
         try
         {
-            var resutl = _fileApi.PostFile(uploadFile.InputFileChange, modelPublic.UserId, _logger);
+            if (uploadFile.InputFileChange != null)
+            {
+                var resultImg = await _fileApi.PostFile(uploadFile.InputFileChange, _logger);
+
+                modelPublic.Created = resultImg.Created;
+                modelPublic.StoredFileName = resultImg.StoredFileName;
+                modelPublic.Type = resultImg.Type;
+                _toast.ShowToast(Toasts[0], ToastLevel.Info);
+            }
+            var resultModel = await _fileApi.PostModel(modelPublic, _logger);
+
+            if (resultModel)
+            {
+                _toast.ShowToast(Toasts[3], ToastLevel.Success);
+                modelPublic = null;
+            }
+            else
+                _toast.ShowToast(Toasts[4], ToastLevel.Error);
+
         }
         catch (Exception exce)
         {
+            _toast.ShowToast(Toasts[1], ToastLevel.Error);
             _logger.LogInformation(exce.Message);
         }
-
     }
 
 

@@ -6,6 +6,7 @@ namespace Strona_v2.Shared.User
     public class UserLogin
     {
         public int Id { get; set; }
+        public string? SecondId { get; set; }
 
         public string? Name { get; set; }
 

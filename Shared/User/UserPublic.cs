@@ -10,7 +10,7 @@ namespace Strona_v2.Shared.User
 {
     public class UserPublic
     {
-        public int Id { get; set; }
+        public string Id { get; set; }
 
         [Required]
         public string? Name { get; set; }
@@ -27,11 +27,12 @@ namespace Strona_v2.Shared.User
 
 
     }
-    public class UserEmailName
+    public class UserLocalStorage
     {
-        public int Id { get; set; }
+        public string Id { get; set; }
         public string? Name { get; set; }
         public string? Email { get; set; }
+        public string Token { get; set; }
     }
 
 }

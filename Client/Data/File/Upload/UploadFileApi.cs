@@ -8,23 +8,26 @@ namespace Strona_v2.Client.Data.File.Upload
 {
     public interface IUploadFileApi
     {
-        Task<FileModel> PostFile(InputFileChangeEventArgs file, int UserId, ILogger logger);
+        Task<FileModelClient> PostFile(InputFileChangeEventArgs file, ILogger logger);
+        Task<bool> PostModel(FileModelClient file, ILogger logger);
     }
 
     public class UploadFileApi : IUploadFileApi
     {
         private AddTokenHttpClient _apiToken;
         private HttpClient _httpClient;
+        private readonly ILocalStorageService _LocalStorage;
         private string ApiStringName { get; set; }
-        public UploadFileApi(ILocalStorageService apiToken, HttpClient httpClient)
+        public UploadFileApi(ILocalStorageService LocalStorage, HttpClient httpClient)
         {
-            _apiToken = new(apiToken);
+            _LocalStorage = LocalStorage;
+            _apiToken = new(LocalStorage);
             UrlString urlString = new UrlString();
             ApiStringName = urlString.File;
             _httpClient = httpClient;
         }
 
-
+        //conwertowanie pliku
         private async Task<MultipartFormDataContent> CastToMultiPart(InputFileChangeEventArgs file, ILogger logger)
         {
             var content = new MultipartFormDataContent();
@@ -52,23 +55,26 @@ namespace Strona_v2.Client.Data.File.Upload
             return content;
         }
 
-        //wysłanie nowego obiektu
-        public async Task<FileModel> PostFile(InputFileChangeEventArgs file, int UserId, ILogger logger)
+        //wysłanie nowego pliku
+        public async Task<FileModelClient> PostFile(InputFileChangeEventArgs file, ILogger logger)
         {
+
             MultipartFormDataContent content = new();
             if (file.GetMultipleFiles().Count > 0)
                 content = await CastToMultiPart(file, logger);
             try
             {
+                var UserLocal = await _apiToken.GetUserLocal();
 
-                var Url = ApiStringName + "img?UserId=" + UserId;
+                var Url = ApiStringName + "img?UserId=" + UserLocal.Id;
 
                 _httpClient = await _apiToken.AddHeadersAuthorization();
 
                 var response = await _httpClient.PostAsync(Url, content);
+
                 if (response.IsSuccessStatusCode)
                 {
-                    var UploadResult = await response.Content.ReadFromJsonAsync<FileModel>();
+                    var UploadResult = await response.Content.ReadFromJsonAsync<FileModelClient>();
 
                     return UploadResult;
                 }
@@ -77,12 +83,39 @@ namespace Strona_v2.Client.Data.File.Upload
             catch (Exception ex)
             {
                 logger.LogInformation(ex.Message);
-                //Console.WriteLine(ex.Message);
                 throw;
             }
         }
+        //Wysyłanie modelu
+        public async Task<bool> PostModel(FileModelClient file, ILogger logger)
+        {
+            try
+            {
+                var UserLocal = await _apiToken.GetUserLocal();
 
+                file.UserId = UserLocal.Id;
 
+                var Url = ApiStringName + "model";
+
+                _httpClient = await _apiToken.AddHeadersAuthorization();
+                file.Id= UserLocal.Id;
+                var response = await _httpClient.PostAsJsonAsync(Url, file);
+                //dopisać czas do local storage
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var UploadResult= await response.Content.ReadFromJsonAsync<DateTimeOffset>();
+
+                    return true;
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                logger.LogInformation(ex.Message);
+                return false;
+            }
+        }
 
 
 
