@@ -9,8 +9,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Strona_v2.Client", "Client\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Strona_v2.Shared", "Shared\Strona_v2.Shared.csproj", "{1F67AF74-4D2B-4127-BCE2-240CDF0A5593}"
 EndProject
-Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "Database_strona_v2", "..\Database_strona_v2\Database_strona_v2.sqlproj", "{197031D7-FC84-4235-9057-CCDBCCB0515F}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,12 +27,6 @@ Global
 		{1F67AF74-4D2B-4127-BCE2-240CDF0A5593}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1F67AF74-4D2B-4127-BCE2-240CDF0A5593}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1F67AF74-4D2B-4127-BCE2-240CDF0A5593}.Release|Any CPU.Build.0 = Release|Any CPU
-		{197031D7-FC84-4235-9057-CCDBCCB0515F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{197031D7-FC84-4235-9057-CCDBCCB0515F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{197031D7-FC84-4235-9057-CCDBCCB0515F}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
-		{197031D7-FC84-4235-9057-CCDBCCB0515F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{197031D7-FC84-4235-9057-CCDBCCB0515F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{197031D7-FC84-4235-9057-CCDBCCB0515F}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

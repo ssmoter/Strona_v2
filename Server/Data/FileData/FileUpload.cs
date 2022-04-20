@@ -161,8 +161,8 @@ namespace Strona_v2.Server.Data.FileData
 
             for (int i = 0; i < files.Count; i++)
             {
-                file.StoredFileName += files[i].StoredFileName + " / ";
-                file.Type += files[i].Type + " / ";
+                file.StoredFileName += files[i].StoredFileName + "/";
+                file.Type += files[i].Type + "/";
             }
             return file;
         }

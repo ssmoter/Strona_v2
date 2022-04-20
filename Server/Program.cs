@@ -1,4 +1,5 @@
 ﻿using HashidsNet;
+using Strona_v2.Server.Data.CommentData;
 using Strona_v2.Server.Data.FileData;
 using Strona_v2.Server.Data.SqlCreatTable;
 using Strona_v2.Server.Data.SqlData;
@@ -21,7 +22,7 @@ builder.Services.AddSingleton<ICreatTable,CreatTable>();            //tworzenie 
 builder.Services.AddSingleton<ISaveFileToSQL,SaveFileToSQL>();      //zapisywanie plików
 builder.Services.AddSingleton<IFileToSQL, FileToSQL>();             //polecenia sql dla plików
 builder.Services.AddSingleton<IHashids>(_ => new Hashids("Prosiak",11));// "hashowanie" id usera
-
+builder.Services.AddSingleton<ISaveCommentToSQL,SaveCommentToSQL>();    //polecenia sql do komentarzy
 
 
 builder.Services.AddSingleton<ITokenManager, TokenManager>();       //autoryzacja przy użyciu tokenu

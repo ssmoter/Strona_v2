@@ -1,0 +1,35 @@
+﻿@using Strona_v2.Client.Data.File.Dowloand
+
+@inject IAPIFileDowloand _IAPIFileDowloand
+@inject ILogger<SortFile> _logger
+
+@if (_fileModels != null)
+{
+    <div>
+        @for (var i = 0; i < _fileModels.Count(); i++)
+        {
+            <div class="border border-dark">
+                <MainFile _Id=@_fileModels[i].Id></MainFile>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <a>Loading ...</a>
+}
+
+
+
+
+
+
+@code {
+    List<FileModelPublic> _fileModels;
+
+    protected async override Task OnInitializedAsync()
+    {
+        _fileModels = await _IAPIFileDowloand.GetFileModels(_logger);
+    }
+
+}

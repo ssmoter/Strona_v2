@@ -32,13 +32,13 @@ namespace Strona_v2.Server.Data.FileData
                 //zapisanie danych do sql
                 await fileToSQL.CreateFile(fileModel);
 
-                IList<FileModelServer> mode = await fileToSQL.GetFileModels(); 
+                IList<FileModelServer> mode = await fileToSQL.GetFileModelsSimple();
 
                 int id = mode[mode.Count - 1].Id;
                 fileModel.Id = id;
                 //stworzenie tabeli do komentarzy
-                await CreatedTabelForComment(id);
-                return true;
+                bool result = await CreatedTabelForComment(id);
+                return result;
             }
             catch (Exception ex)
             {
@@ -119,7 +119,7 @@ namespace Strona_v2.Server.Data.FileData
         private async Task<bool> CreatedTabelForComment(int FileId)
         {
             ExampleTable exampleTable = new(8);
-            CommentModel commentModel = new CommentModel();
+            CommentModelServer commentModel = new CommentModelServer();
 
 
             exampleTable.ColumnName[0] = nameof(commentModel.FileId);
@@ -131,14 +131,14 @@ namespace Strona_v2.Server.Data.FileData
             exampleTable.ColumnName[2] = nameof(commentModel.Comment);
             exampleTable.ColumnParametr[2] = "nvarchar(MAX)";
 
-            exampleTable.ColumnName[3] = nameof(commentModel.Like);
+            exampleTable.ColumnName[3] = nameof(commentModel.NoLike);
             exampleTable.ColumnParametr[3] = "int";
 
             exampleTable.ColumnName[4] = nameof(commentModel.UnLike);
             exampleTable.ColumnParametr[4] = "int";
 
             exampleTable.ColumnName[5] = nameof(commentModel.Created);
-            exampleTable.ColumnParametr[5] = "datetimeoffset(7)";
+            exampleTable.ColumnParametr[5] = "datetimeoffset";
 
             exampleTable.ColumnName[6] = nameof(commentModel.ListUserIdLike);
             exampleTable.ColumnParametr[6] = "Text";
@@ -146,7 +146,7 @@ namespace Strona_v2.Server.Data.FileData
             exampleTable.ColumnName[7] = nameof(commentModel.ListUserIdUnLike);
             exampleTable.ColumnParametr[7] = "Text";
 
-            string Question = exampleTable.CreatSqlTable(nameof(commentModel), FileId.ToString());
+            string Question = exampleTable.CreatSqlTable(nameof(CommentModelServer), FileId.ToString());
 
             CreatTable creatTable = new CreatTable(_sqlDataAccess);
 

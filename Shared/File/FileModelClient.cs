@@ -12,7 +12,7 @@ namespace Strona_v2.Shared.File
         public string? Description { get; set; }
         public string? Tag { get; set; }
         public string? UserId { get; set; }
-        public int Like { get; set; }
+        public int NoLike { get; set; }
         public int Spam { get; set; }
         public DateTimeOffset? Created { get; set; }
         public bool Main { get; set; }
@@ -30,7 +30,7 @@ namespace Strona_v2.Shared.File
             server.Title = client.Title;
             server.Description = client.Description;
             server.Tag = client.Tag;
-            server.Like = client.Like;
+            server.NoLike = client.NoLike;
             server.Spam = client.Spam;
             server.Created = client.Created;
             server.Main = client.Main;
@@ -51,7 +51,7 @@ namespace Strona_v2.Shared.File
         public string? Description { get; set; }
         public string? Tag { get; set; }
         public int UserId { get; set; }
-        public int Like { get; set; }
+        public int NoLike { get; set; }
         public int Spam { get; set; }
         public DateTimeOffset? Created { get; set; }
         public bool Main { get; set; }
@@ -64,14 +64,14 @@ namespace Strona_v2.Shared.File
 
         public FileModelClient CastToClient(FileModelServer server)
         {
-            FileModelClient client= new();
+            FileModelClient client = new();
 
             client.Title = server.Title;
             client.Description = server.Description;
             client.Tag = server.Tag;
-            client.Like = server.Like;
+            client.NoLike = server.NoLike;
             client.Spam = server.Spam;
-            client.Created= server.Created;
+            client.Created = server.Created;
             client.Main = server.Main;
             client.Path = server.Path;
             client.ListUserIdLike = server.ListUserIdLike;
@@ -92,24 +92,37 @@ namespace Strona_v2.Shared.File
 
         public bool Uploaded { get; set; }
         public int ErrorCode { get; set; }
-
     }
 
     public class FileModelPublic
     {
-        public string? Id { get; set; }
+        public string Id { get; set; }
         public string? Title { get; set; }
         public string? Description { get; set; }
         public string? Tag { get; set; }
-        public string UserId { get; set; }
-        public int Like { get; set; }
+        public string? UserId { get; set; }
+        public int NoLike { get; set; }
         public int Spam { get; set; }
         public DateTimeOffset? Created { get; set; }
         public bool Main { get; set; }
+        public string? Path { get; set; }
         public string? ListUserIdLike { get; set; }
         public string? ListUserIdSpam { get; set; }
         public string? StoredFileName { get; set; }
         public string? Type { get; set; }
+        public List<FileSingleModel>? Files { get; set; }
+
+        public void TrimNameTyp()
+        {
+            var Name = StoredFileName.Split('/');
+            var type = Type.Split('/');
+            for (int i = 0; i < Name.Count(); i++)
+            {
+                Files.Add(new FileSingleModel() { StoredFileName = Name[i], Type = type[i] });
+            }
+
+        }
+
     }
 
 

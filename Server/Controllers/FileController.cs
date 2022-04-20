@@ -30,7 +30,7 @@ namespace Strona_v2.Server.Controllers
         [HttpGet]
         public async Task<IList<FileModelClient>> GetFile()
         {
-            var server = await _FileToSQL.GetFileModels();
+            var server = await _FileToSQL.GetFileModelsSimple();
 
             List<FileModelClient> client = new();
 
@@ -38,13 +38,12 @@ namespace Strona_v2.Server.Controllers
             {
                 client.Add(server[i].CastToClient(server[i]));
                 client[i].Id = _hashids.Encode(server[i].Id, 11);
-                client[i].UserId = _hashids.Encode(server[i].UserId, 11);
             }
             return client;
         }
         //zwracanie konkretnego modelu
         [HttpGet]
-        [Route("Single")]
+        [Route("single")]
         public async Task<ActionResult> GetFile(string id)
         {
             FileModelServer server = new();
@@ -66,7 +65,7 @@ namespace Strona_v2.Server.Controllers
 
         [HttpGet]
         [Route("img")]
-        public async Task<ActionResult> ShowImg(string UserId,string FileName,string FileType)
+        public async Task<ActionResult> ShowImg(string UserId,string StoredFileName,string Type)
         {
             var ravId = _hashids.Decode(UserId);
             if (ravId.Length==0)
@@ -75,13 +74,13 @@ namespace Strona_v2.Server.Controllers
             }
             
             var path = Path.Combine(_webHostEnvironment.ContentRootPath,
-                _webHostEnvironment.EnvironmentName, "unsafe_uploads", ravId[0].ToString(), FileName);
+                _webHostEnvironment.EnvironmentName, "unsafe_uploads", ravId[0].ToString(), StoredFileName);
 
             try
             {
                 var image= System.IO.File.OpenRead(path);
 
-                return File(image, "image/" + FileType);
+                return File(image, "image/" + Type);
             }
             catch (Exception ex)
             {
@@ -109,9 +108,15 @@ namespace Strona_v2.Server.Controllers
             server.UserId = rawUserId[0];
 
             bool result = await _IsaveFileToSQL.SaveAsync(server, _logger);
+            //wszystko ok
             if (result)
             {
                 return Ok(DateTimeOffset.Now);
+            }
+            //usunięcie rekordu bo nie udało się stworzyć tabeli
+            if (!result)
+            {
+
             }
             return BadRequest();
         }

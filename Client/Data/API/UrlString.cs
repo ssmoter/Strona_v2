@@ -4,13 +4,15 @@
     {
         private string Main = "https://localhost:7249/api";
 
-        public string User { get; set; } = "/User/";
-        public string File { get; set; } = "/File/";
+        public string User { get;  } = "/User/";
+        public string File { get;  } = "/File/";
+        public string Comment { get; } = "/Comment/";
 
         public UrlString()
         {
             User = Main + User;
             File =Main + File;
+            Comment = Main + Comment;
         }
 
     }

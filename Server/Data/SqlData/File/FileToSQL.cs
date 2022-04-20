@@ -8,6 +8,7 @@ namespace Strona_v2.Server.Data.SqlData.File
         Task CreateFile(FileModelServer file);
         Task<FileModelServer> GetFileModel(FileModelServer file);
         Task<IList<FileModelServer>> GetFileModels();
+        Task<IList<FileModelServer>> GetFileModelsSimple();
         Task UpdateFile(FileModelServer file);
     }
 
@@ -44,15 +45,6 @@ namespace Strona_v2.Server.Data.SqlData.File
                 "," + nameof(file.Type) + " = @" + nameof(file.Type) +
                 "WHERE " + nameof(file.Id) + " = " + file.Id;
 
-
-
-            string sq = string.Format("UPDATE dbo.{tableName} " +
-                    " SET {FileName} = @{fileName}, {Type} = @{type} " +
-                    " WHERE {Id} = {id}",
-                    TableName, nameof(file.StoredFileName), file.StoredFileName,
-                    nameof(file.Type), file.Type,
-                    nameof(file.Id), file.Id);
-
             await _SqlDataAccess.SaveData(sql, file);
         }
 
@@ -72,6 +64,18 @@ namespace Strona_v2.Server.Data.SqlData.File
         {
             string sql = "SELECT * " +
                    " FROM dbo." + TableName;
+
+            return await _SqlDataAccess.LoadDataList<FileModelServer>(sql);
+        }
+
+        //pobieranie ID NoLike i daty
+        public async Task<IList<FileModelServer>> GetFileModelsSimple()
+        {
+            string sql = "SELECT " +
+                nameof(FileModelServer.Id) + "," +
+                nameof(FileModelServer.NoLike) + "," +
+                nameof(FileModelServer.Created) +
+                " FROM " + TableName;           
 
             return await _SqlDataAccess.LoadDataList<FileModelServer>(sql);
         }

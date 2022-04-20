@@ -14,7 +14,7 @@ namespace Strona_v2.Client.Data.File.Upload
 
     public class UploadFileApi : IUploadFileApi
     {
-        private AddTokenHttpClient _apiToken;
+        private TokenHttpClient _apiToken;
         private HttpClient _httpClient;
         private readonly ILocalStorageService _LocalStorage;
         private string ApiStringName { get; set; }
@@ -78,6 +78,7 @@ namespace Strona_v2.Client.Data.File.Upload
 
                     return UploadResult;
                 }
+                logger.LogError("Falied");
                 return null;
             }
             catch (Exception ex)
@@ -108,6 +109,7 @@ namespace Strona_v2.Client.Data.File.Upload
 
                     return true;
                 }
+                logger.LogError("Falied");
                 return false;
             }
             catch (Exception ex)

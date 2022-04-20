@@ -5,7 +5,6 @@
 @inject BrowserService _browserService
 @inject NavigationManager _navigationManager
 
-
 @if (browserDimension.Width > 640)
 {
     @*<button class="btn btn-danger" @onclick="@(() => _toastService.ShowToast("I'm an ERROR message", ToastLevel.Error))">Error Toast</button>*@
@@ -13,8 +12,7 @@
     <div class="w-75">
 
         <div class="float-start w-75 ">
-            <Strona_v2.Client.Pages.FIle.MainFile></Strona_v2.Client.Pages.FIle.MainFile>
-
+            <Strona_v2.Client.Pages.FIle.SortFile />
         </div>
         <div class="float-start w-25">
             @*Kiedyś reklama*@
@@ -32,9 +30,10 @@ else
 @code {
     BrowserDimension browserDimension = new();
 
+
     protected async override Task OnInitializedAsync()
     {
-        
+        browserDimension = await _browserService.GetBrowserDimension();
 
 
     }

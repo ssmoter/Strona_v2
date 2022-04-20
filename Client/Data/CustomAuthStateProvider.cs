@@ -38,7 +38,7 @@ namespace Strona_v2.Client.Data
 
                     state = new AuthenticationState(new ClaimsPrincipal(identity));
 
-                    // state = await UpdateOnlineAndCheckToken(state);
+                    state = await UpdateOnlineAndCheckToken(state);
                 }
             }
 

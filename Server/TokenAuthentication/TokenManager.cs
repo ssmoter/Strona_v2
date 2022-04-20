@@ -17,6 +17,7 @@ namespace Strona_v2.Server.TokenAuthentication
         {
             if (user != null)
             {
+
                 return true;
             }
             return false;
@@ -26,9 +27,9 @@ namespace Strona_v2.Server.TokenAuthentication
         //data ustawiona na 10 dni 
         public async Task<cToken> NewToken(UserLogin user)
         {
-            var token = await LoadToken(user);
+            cToken token = await LoadToken(user);
 
-            if (token == null)
+            if (token == null || token.ExpiryDate < DateTimeOffset.Now)
             {
                 token = new cToken
                 {
@@ -62,14 +63,13 @@ namespace Strona_v2.Server.TokenAuthentication
             {
                 return false;
             }
-            cToken testToken = await _LogInUser.CheckTokenAndTime(token);
-            if (testToken == null /*&& testToken.Token != ""*/)
+            cToken RealToken = await _LogInUser.CheckTokenAndTime(token);
+            if (RealToken == null /*&& testToken.Token != ""*/)
             {
                 return false;
             }
-
-            if (testToken.Token == token
-                && testToken.ExpiryDate > DateTimeOffset.Now)
+            if (RealToken.Token == token
+                && RealToken.ExpiryDate > DateTimeOffset.Now)
             {
                 return true;
             }

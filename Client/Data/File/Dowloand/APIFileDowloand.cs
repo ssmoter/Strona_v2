@@ -6,14 +6,16 @@ namespace Strona_v2.Client.Data.File.Dowloand
 {
     public interface IAPIFileDowloand
     {
-        Task<List<FileModelPublic>> GetFileAsync();
+        string GetFileImg(string UserId, string StoredFileName, string Type, ILogger logger);
+        Task<FileModelPublic> GetFileModel(string Id, ILogger logger);
+        Task<List<FileModelPublic>> GetFileModels(ILogger logger);
     }
 
     public class APIFileDowloand : IAPIFileDowloand
     {
         private HttpClient _httpClient;
         private string ApiStringName;
-
+        private readonly string ImgError = "";
         public APIFileDowloand(HttpClient httpClient)
         {
             UrlString urlString = new();
@@ -21,24 +23,66 @@ namespace Strona_v2.Client.Data.File.Dowloand
             _httpClient = httpClient;
         }
 
-
-        public async Task<List<FileModelPublic>> GetFileAsync()
+        //pobieranie listy 
+        public async Task<List<FileModelPublic>> GetFileModels(ILogger logger)
         {
             try
             {
-                var Url = ApiStringName ;
+                var Url = ApiStringName;
 
-               var result = await _httpClient.GetFromJsonAsync<List<FileModelPublic>>(Url);
+                var result = await _httpClient.GetFromJsonAsync<List<FileModelPublic>>(Url);
 
                 return result;
             }
             catch (Exception ex)
             {
+                logger.LogInformation(ex.Message);
                 throw;
             }
         }
-        
-        
+        //pobranie jednego elementu
+        public async Task<FileModelPublic> GetFileModel(string Id, ILogger logger)
+        {
+            try
+            {
+                var Url = ApiStringName + "single?id=" + Id;
+
+                var resutl = await _httpClient.GetFromJsonAsync<FileModelPublic>(Url);
+
+                return resutl;
+
+            }
+            catch (Exception ex)
+            {
+                logger.LogInformation(ex.Message);
+                throw;
+            }
+
+
+        }
+
+
+        // przygotowanie adresu do wyświetlenia img
+        public string GetFileImg(string UserId, string StoredFileName, string Type, ILogger logger)
+        {
+            try
+            {
+                var Url = ApiStringName + "img?" +
+                    nameof(UserId) + "=" + UserId +
+                    "&" + nameof(StoredFileName) + "=" + StoredFileName +
+                    "&" + nameof(Type) + "=" + Type;
+
+                return Url;
+            }
+            catch (Exception ex)
+            {
+                logger.LogInformation(ex.Message);
+                return ImgError;
+            }
+        }
+
+
+
 
     }
 }

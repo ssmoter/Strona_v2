@@ -17,7 +17,7 @@ namespace Strona_v2.Client.Data.API
     {
         public HttpClient _httpClient { get; set; }
         private readonly ILocalStorageService _localStorage;
-        private readonly AddTokenHttpClient _addTokenHttpClient;
+        private readonly TokenHttpClient _addTokenHttpClient;
         public string ApiStringName { get; set; }
 
         public ApiUserWithToken(HttpClient httpClient, ILocalStorageService localStorage)

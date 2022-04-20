@@ -24,6 +24,6 @@ builder.Services.AddScoped<ToastService>();                  //wyskakujące okie
 builder.Services.AddScoped<BrowserService>();                //wielkość okna w przeglądarce chyba nie przydatne
 builder.Services.AddScoped<IAPIFileDowloand, APIFileDowloand>(); //pobieranie nowego posta
 builder.Services.AddScoped<IUploadFileApi, UploadFileApi>();     //Wysyłnie nowego posta
-
+builder.Services.AddScoped<IAPIComment, APIComment>();           //pobieranie/wysyłanie komentarzy
 
 await builder.Build().RunAsync();

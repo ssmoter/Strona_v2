@@ -96,14 +96,14 @@
 
 
 @code {
-    FileModelClient filePublic = new(); //model obiektu
+    private static FileModelClient filePublic = new(); //model obiektu
     UploadFileBase uploadFile = new(); //model podlądu pliku
 
     private bool shouldRender;
     protected override bool ShouldRender() => shouldRender;
 
     private static readonly string[] Toasts = new[]
-                                                       {
+                                                           {
         "Wysłano pliki",                  //0
         "Błąd przy wysyłaniu pliku" ,     //1
         "Podgląd nie dostępny",           //2
@@ -143,7 +143,7 @@
     {
 
         FileModelClient modelPublic = new();
-
+        modelPublic.Files = new();
         modelPublic.Title = filePublic.Title;
         modelPublic.Description = filePublic.Description;
         modelPublic.Tag = filePublic.Tag;

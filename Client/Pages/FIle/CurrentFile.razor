@@ -1,0 +1,126 @@
+﻿@page "/f/{Id}"
+
+@inject IAPIFileDowloand _IAPIFileDowloand
+@inject IAPIComment _IApiComment
+@inject ILogger<CurrentFile> _logger
+@inject ToastService _toastService
+
+
+@if (_modelPublic != null)
+{
+
+    <div class="">
+        @for (var i = 0; i < _modelPublic.Files.Count() - 1; i++)
+        {
+            int Iint = i;
+            <span @onclick="@(e=>ChangeImg(Iint))">
+                <img width="80" src="@(_IAPIFileDowloand.GetFileImg(_modelPublic.UserId,_modelPublic.Files[i].StoredFileName,_modelPublic.Files[i].Type,_logger))" />
+            </span>
+        }
+    </div>
+    <div style="max-height:200px;min-height:100px;">
+        <span>
+            <img src="@(_IAPIFileDowloand.GetFileImg(_modelPublic.UserId,_modelPublic.Files[ImgId].StoredFileName,_modelPublic.Files[ImgId].Type,_logger))" style="max-width:500px;height:auto;" />
+        </span>
+    </div>
+
+
+}
+else
+{
+    <h3>Loading...</h3>
+}
+
+<AuthorizeView Context="authContext">
+    <Authorized>
+        <div>
+            <EditForm Context="formContext" Model="_newComment" OnSubmit="@SendComment">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <div>
+                    <label>
+                        <span>
+                            <InputTextArea @bind-Value="@_newComment.Comment"></InputTextArea>
+                        </span>
+                    </label>
+                </div>
+                <button class="btn btn-primary" type="submit">Wyślij</button>
+            </EditForm>
+        </div>
+    </Authorized>
+</AuthorizeView>
+
+@if (_commentModel != null)
+{
+    <div style="">
+        @for (var i = 0; i < _commentModel.Count(); i++)
+        {
+            <p>@_commentModel[i].Comment</p>
+        }
+    </div>
+}
+else
+{
+    <h6>Loading...</h6>
+}
+
+
+
+@code {
+    [Parameter]
+    public string Id { get; set; }
+
+    private FileModelPublic _modelPublic;
+    private List<CommentModelClient> _commentModel;
+    private CommentModelClient _newComment = new();
+
+    private int ImgId = 0;
+    private void ChangeImg(int id)
+    {
+        ImgId = id;
+    }
+
+    private static readonly string[] Toasts = new[]
+                                                           {
+        "Wysłano komentarz","Coś poszło nie tak"
+    };
+
+    private async void SendComment()
+    {
+
+        _newComment.FileId = Id;
+        var respons =  await _IApiComment.SendComment(_newComment, _logger);
+
+        if (respons)
+        {
+
+            _toastService.ShowToast(Toasts[0], ToastLevel.Success);
+            _newComment = new();
+            _commentModel = await _IApiComment.GetCommentAsync(Id, _logger);
+        }
+        if (!respons)
+        {
+            _toastService.ShowToast(Toasts[1], ToastLevel.Error);
+
+        }
+
+    }
+
+
+    protected async override Task OnInitializedAsync()
+    {
+        _modelPublic = await _IAPIFileDowloand.GetFileModel(Id, _logger);
+
+        if (_modelPublic != null)
+        {
+            _modelPublic.Files = new();
+            _modelPublic.TrimNameTyp();
+        }
+
+        _commentModel = await _IApiComment.GetCommentAsync(Id, _logger);
+
+    }
+
+
+
+}

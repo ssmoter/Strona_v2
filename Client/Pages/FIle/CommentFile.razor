@@ -1,0 +1,35 @@
+﻿@inject IAPIComment _ApiComment
+@inject ILogger<CommentFile> _logger
+
+
+<div>
+    @if (_Comments != null)
+    {
+        <div style="max-height:200px;max-width:200px;padding:50px;overflow-y:scroll;">
+            @for (var i = 0; i < _Comments.Count(); i++)
+            {
+                <p>@_Comments[i].Comment</p>
+            }
+        </div>
+    }
+    else
+    {
+        <p>Loading...</p>
+    }
+
+</div>
+
+
+
+@code {
+    [Parameter]
+    public string? _FileId { get; set; }
+
+    private List<CommentModelClient>? _Comments;
+
+    protected async override Task OnInitializedAsync()
+    {
+        _Comments = await _ApiComment.GetCommentAsync(_FileId, _logger);
+    }
+
+}
