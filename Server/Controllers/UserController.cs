@@ -22,7 +22,6 @@ namespace Strona_v2.Server.Controllers
         private readonly IEditProfileUser _EditProfileUser;
         private readonly IHashids _hashids;
 
-
         public UserController(ILoginUser LogInUser,
             ITokenManager TokenManager,
             IProfileUser ProfileUser,
@@ -53,7 +52,7 @@ namespace Strona_v2.Server.Controllers
                     user.Token = token.Token;
                     user.ExpiryDate = token.ExpiryDate;
 
-                    user.SecondId=_hashids.Encode(user.Id,11);
+                    user.SecondId = _hashids.Encode(user.Id, 11);
                     user.Id = -1;
                     return Ok(user);
                     //return Ok(new { Token = _tokenManager.NewToken(user) });
@@ -118,7 +117,7 @@ namespace Strona_v2.Server.Controllers
                 {
                     return BadRequest(EnableProfilEnum.Email);
                 }
-                
+
 
                 UserLogin loginUser = new();
                 loginUser.Email = email;
@@ -169,13 +168,54 @@ namespace Strona_v2.Server.Controllers
             return NotFound();
         }
 
+        [HttpGet]
+        [Route("emails")]
+        //sprawdzenie czy Email się powtarza
+        public async Task<IActionResult> IndividualEmail(string email)
+        {
+            IList<string> emails = await _LogInUser.IndividualEmail();
+
+            foreach (string item in emails)
+            {
+                if (email == item)
+                {
+                    return BadRequest();
+                }
+            }
+            return Ok();
+        }
 
 
-        // POST api/<UserController>
-        //[HttpPost]
-        //public void Post([FromBody] string value)
-        //{
-        //}
+        //POST api/<UserController>
+        //Api od rejestracji
+        [HttpPost]
+        public async Task<IActionResult> Post([FromBody] UserRegisterClient client)
+        {
+            try
+            {
+                if (client != null)
+                {
+                    UserRegisterServer server = new();
+                    server = server.CastFromClient(client);
+                    server.DataCreat = DateTimeOffset.Now;
+
+                    await _LogInUser.Register(server);
+
+                    UserLogin login = new();
+                    login = login.CastFromUserRegisterServer(server);
+
+                    return Ok(login);
+                }
+                return NoContent(); ;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return BadRequest();
+            }
+
+
+        }
 
         //// PUT api/<UserController>/5
         //[HttpPut("{id}")]

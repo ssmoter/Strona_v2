@@ -14,17 +14,19 @@ namespace Strona_v2.Client.Data.File.Upload
 
     public class UploadFileApi : IUploadFileApi
     {
-        private TokenHttpClient _apiToken;
+        private ITokenHttpClient _apiToken;
         private HttpClient _httpClient;
         private readonly ILocalStorageService _LocalStorage;
         private string ApiStringName { get; set; }
-        public UploadFileApi(ILocalStorageService LocalStorage, HttpClient httpClient)
+        public UploadFileApi(ILocalStorageService LocalStorage,
+            HttpClient httpClient,
+            ITokenHttpClient apiToken)
         {
             _LocalStorage = LocalStorage;
-            _apiToken = new(LocalStorage);
             UrlString urlString = new UrlString();
             ApiStringName = urlString.File;
             _httpClient = httpClient;
+            _apiToken = apiToken;
         }
 
         //conwertowanie pliku
@@ -99,13 +101,13 @@ namespace Strona_v2.Client.Data.File.Upload
                 var Url = ApiStringName + "model";
 
                 _httpClient = await _apiToken.AddHeadersAuthorization();
-                file.Id= UserLocal.Id;
+                file.Id = UserLocal.Id;
                 var response = await _httpClient.PostAsJsonAsync(Url, file);
                 //dopisać czas do local storage
 
                 if (response.IsSuccessStatusCode)
                 {
-                    var UploadResult= await response.Content.ReadFromJsonAsync<DateTimeOffset>();
+                    var UploadResult = await response.Content.ReadFromJsonAsync<DateTimeOffset>();
 
                     return true;
                 }

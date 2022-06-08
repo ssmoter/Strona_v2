@@ -1,5 +1,4 @@
-﻿using Blazored.LocalStorage;
-using Strona_v2.Shared.User;
+﻿using Strona_v2.Shared.User;
 using System.Net.Http.Json;
 
 namespace Strona_v2.Client.Data.API
@@ -60,10 +59,10 @@ namespace Strona_v2.Client.Data.API
         //        throw;
         //    }
         //}
-       
-        
-        
-        
+
+
+
+
         //pobranie profilu usera po nick
         public async Task<UserPublic?> ProfileUserPublic(string UserName)
         {
@@ -83,6 +82,56 @@ namespace Strona_v2.Client.Data.API
                 throw;
             }
         }
- 
+
+        //sprawdzenie istnienia email'a
+        public async Task<int> IndividualEmail(ILogger logger, string Email)
+        {
+            try
+            {
+                var Url = ApiStringName + "emails?email=" + Email;
+                var result = await _httpClient.GetAsync(Url);
+
+                if (result.IsSuccessStatusCode)
+                {
+                    return 0;
+                }
+                if (!result.IsSuccessStatusCode)
+                {
+                    return 1;
+                }
+                return 2;
+            }
+            catch (Exception ex)
+            {
+                logger.LogInformation(ex.Message);
+                return 2;
+            }
+        }
+
+        //Rejestracja
+        public async Task<UserLogin?> Register(ILogger logger,UserRegisterClient client)
+        {
+            string Url = ApiStringName;
+
+            try
+            {
+                var response = await _httpClient.PostAsJsonAsync<UserRegisterClient>(Url, client);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var result = await response.Content.ReadFromJsonAsync<UserLogin?>();
+
+                    return result;
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                logger.LogInformation(ex.Message);
+                return null;
+            }
+        }
+
+
     }
 }

@@ -4,6 +4,7 @@
 @inject IUploadFileApi _fileApi;
 @inject ToastService _toast;
 
+
 <div class="container-fluid">
     <div class="col-auto">
         @if (uploadFile.Error != null)
@@ -164,7 +165,10 @@
             if (resultModel)
             {
                 _toast.ShowToast(Toasts[3], ToastLevel.Success);
-                modelPublic = null;
+                modelPublic = new();
+                uploadFile.ImgDataUri = new();
+                filePublic = new();
+                StateHasChanged();
             }
             else
                 _toast.ShowToast(Toasts[4], ToastLevel.Error);

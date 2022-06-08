@@ -4,6 +4,7 @@
 @inject NavigationManager navigationManager
 @inject ISyncLocalStorageService LocalStorage
 @inject AuthenticationStateProvider AuthState
+@inject ToastService _toast;
 
 @code {
     protected override async Task OnInitializedAsync()
@@ -11,7 +12,8 @@
         LocalStorage.RemoveItem(nameof(UserLocalStorage));
         LocalStorage.RemoveItem("time");
 
-        AuthState.GetAuthenticationStateAsync();
+        await AuthState.GetAuthenticationStateAsync();
+        _toast.ShowToast("Wylogowano się", ToastLevel.Info);
 
         navigationManager.NavigateTo("/");
     }

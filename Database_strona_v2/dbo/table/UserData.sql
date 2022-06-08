@@ -1,0 +1,20 @@
+﻿CREATE TABLE [dbo].[UserData]
+(
+	[Id] INT NOT NULL PRIMARY KEY IDENTITY, 
+    [Email] NVARCHAR(50) NOT NULL, 
+    [Password] NVARCHAR(50) NOT NULL, 
+    [Token] NVARCHAR(MAX) NULL, 
+    [Name] NVARCHAR(50) NOT NULL, 
+    [ExpiryDate] DATETIMEOFFSET NULL, 
+    [Like] INT NULL, 
+    [UnLike] INT NULL, 
+    [LastOnline] DATETIMEOFFSET NULL, 
+    [EmailConfirmed] BIT NULL, 
+    [Role] NVARCHAR(50) NULL DEFAULT 'User', 
+    [DataCreat] DATETIMEOFFSET NOT NULL, 
+    [AvatarNameString] NVARCHAR(MAX) NULL, 
+    [Mature] BIT NULL DEFAULT 'False', 
+    [ListUserIdLike] TEXT NULL, 
+    [ListUserIdUnLike] TEXT NULL, 
+    [Ban] BIT NULL DEFAULT 'False', 
+)

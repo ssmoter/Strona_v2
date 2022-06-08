@@ -1,6 +1,7 @@
 ﻿using HashidsNet;
 using Microsoft.AspNetCore.Mvc;
 using Strona_v2.Server.Data.CommentData;
+using Strona_v2.Server.Filtres;
 using Strona_v2.Shared.File;
 
 namespace Strona_v2.Server.Controllers
@@ -30,7 +31,7 @@ namespace Strona_v2.Server.Controllers
 
         //pobieranie komentarzy z jednego posta
         [HttpGet]
-        public async Task<ActionResult> GetComment(string FileId)
+        public async Task<IActionResult> GetComment(string FileId)
         {
             var ravId = _hashids.Decode(FileId);
             if (ravId.Length == 0)
@@ -60,7 +61,8 @@ namespace Strona_v2.Server.Controllers
 
         //zapisywanie komentarzy 
         [HttpPost]
-        public async Task<ActionResult> SetComment(CommentModelClient comment)
+        [TokenAuthenticationFilter]
+        public async Task<IActionResult> SetComment(CommentModelClient comment)
         {
             var fileId=_hashids.Decode(comment.FileId);
             if(fileId.Length == 0)

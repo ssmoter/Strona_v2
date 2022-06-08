@@ -7,20 +7,31 @@
 @if (_Model != null)
 {
     <div>
-        <div class="border border-dark">
-            @for (var i = 0; i < _Model.Files.Count() - 1; i++)
-            {
-                int Iint = i;
-                <span @onclick="@(e=>ChangeImg(Iint))">
-                    <img width="80" src="@(_IAPIFileDowloand.GetFileImg(_Model.UserId,_Model.Files[i].StoredFileName,_Model.Files[i].Type,_logger))" />
-                </span>
-            }
+        <div>
+            <h3>@_Model.Title</h3>
+            <p>@_Model.NoLike / @_Model.Spam</p>
+            <p>@_Model.Description</p>
         </div>
-        <NavLink href="@CurrentString" style="max-height:200px;min-height:100px;">
-            <span>
-                <img src="@(_IAPIFileDowloand.GetFileImg(_Model.UserId,_Model.Files[ImgId].StoredFileName,_Model.Files[ImgId].Type,_logger))" style="max-width:500px;height:auto;" />
-            </span>
-        </NavLink>
+        @if (_Model.Files.Count() - 1 > 1)
+        {
+            <div class="border border-dark">
+                @for (var i = 0; i < _Model.Files.Count() - 1; i++)
+                {
+                    int Iint = i;
+                    <span @onclick="@(e=>ChangeImg(Iint))">
+                        <img width="80" src="@(_IAPIFileDowloand.GetFileImg(_Model.UserId,_Model.Files[i].StoredFileName,_Model.Files[i].Type,_logger))" />
+                    </span>
+                }
+            </div>
+        }
+        @if (@_Model.Files.Count() - 1 > 0) 
+        {
+            <NavLink href="@CurrentString" style="max-height:200px;min-height:100px;">
+                <span>
+                    <img src="@(_IAPIFileDowloand.GetFileImg(_Model.UserId,_Model.Files[ImgId].StoredFileName,_Model.Files[ImgId].Type,_logger))" style="max-width:500px;height:auto;" />
+                </span>
+            </NavLink>
+        }
         <div class="float-end">
             <div>
                 <CommentFile _FileId=@_Id></CommentFile>
@@ -56,11 +67,11 @@ else
     protected async override Task OnInitializedAsync()
     {
         _Model = await _IAPIFileDowloand.GetFileModel(_Id, _logger);
+        _Model.Files = new();
 
         if (_Model != null)
         {
             CurrentString += _Model.Id;
-            _Model.Files = new();
             _Model.TrimNameTyp();
         }
 

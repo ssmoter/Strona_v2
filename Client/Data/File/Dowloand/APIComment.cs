@@ -15,15 +15,18 @@ namespace Strona_v2.Client.Data.File.Dowloand
     {
         private HttpClient _httpClient;
         private string ApiStringName;
-        private TokenHttpClient _apiToken;
+        private ITokenHttpClient _apiToken;
 
 
-        public APIComment(HttpClient http, ILocalStorageService LocalStorage)
+        public APIComment(HttpClient http,
+            ILocalStorageService LocalStorage,
+            ITokenHttpClient apiToken)
         {
             _httpClient = http;
             UrlString urlString = new();
             ApiStringName = urlString.Comment;
-            _apiToken = new(LocalStorage);
+            _apiToken = apiToken;
+            //_apiToken = new(LocalStorage);
         }
 
         //pobieranie komentarzy z jednego posta
@@ -63,6 +66,8 @@ namespace Strona_v2.Client.Data.File.Dowloand
                 _httpClient = await _apiToken.AddHeadersAuthorization();
 
                 var response = await _httpClient.PostAsJsonAsync(Url, comment);
+
+                await _apiToken.UnAuthorizationUser(response);
 
                 if(response.IsSuccessStatusCode)
                 {

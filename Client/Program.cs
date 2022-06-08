@@ -25,5 +25,6 @@ builder.Services.AddScoped<BrowserService>();                //wielkość okna w
 builder.Services.AddScoped<IAPIFileDowloand, APIFileDowloand>(); //pobieranie nowego posta
 builder.Services.AddScoped<IUploadFileApi, UploadFileApi>();     //Wysyłnie nowego posta
 builder.Services.AddScoped<IAPIComment, APIComment>();           //pobieranie/wysyłanie komentarzy
+builder.Services.AddScoped<ITokenHttpClient, TokenHttpClient>(); // klasa z tokenem
 
 await builder.Build().RunAsync();

@@ -114,13 +114,15 @@ namespace Strona_v2.Shared.File
 
         public void TrimNameTyp()
         {
-            var Name = StoredFileName.Split('/');
-            var type = Type.Split('/');
-            for (int i = 0; i < Name.Count(); i++)
+            if (StoredFileName != null && Type != null)
             {
-                Files.Add(new FileSingleModel() { StoredFileName = Name[i], Type = type[i] });
+                var Name = StoredFileName.Split('/');
+                var type = Type.Split('/');
+                for (int i = 0; i < Name.Count(); i++)
+                {
+                    Files.Add(new FileSingleModel() { StoredFileName = Name[i], Type = type[i] });
+                }
             }
-
         }
 
     }

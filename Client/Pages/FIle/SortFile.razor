@@ -5,12 +5,20 @@
 
 @if (_fileModels != null)
 {
+    <span @onclick="@RefreshModel">
+        <button @onclick="@PopularFile">Popularne</button>
+        <button @onclick="@PopularFile24">Popularne 24h</button>
+    </span>
+
     <div>
-        @for (var i = 0; i < _fileModels.Count(); i++)
+        @if (shouldRender)
         {
-            <div class="border border-dark">
-                <MainFile _Id=@_fileModels[i].Id></MainFile>
-            </div>
+            @for (var i = 0; i < _fileModels.Count(); i++)
+            {
+                <div class="border border-dark">
+                    <MainFile _Id=@_fileModels[i].Id></MainFile>
+                </div>
+            }
         }
     </div>
 }
@@ -20,16 +28,59 @@ else
 }
 
 
-
-
-
-
 @code {
     List<FileModelPublic> _fileModels;
+    private bool shouldRender = true;
+
+    //protected override bool ShouldRender() => shouldRender;
 
     protected async override Task OnInitializedAsync()
     {
         _fileModels = await _IAPIFileDowloand.GetFileModels(_logger);
+        _fileModels.Reverse();
     }
+
+
+
+    private static int CompareByNoLike(FileModelPublic model1, FileModelPublic model2)
+    {
+        return model1.NoLike.CompareTo(model2.NoLike);
+    }
+
+    private void RefreshModel()
+    {
+        shouldRender = !shouldRender;
+    }
+
+    private bool PopularBool = true;
+    private void PopularFile()
+    {
+        if (PopularBool)
+        {
+            _fileModels.Sort(CompareByNoLike);
+            shouldRender = !shouldRender;
+            PopularBool = !PopularBool;
+        }
+        else if (!PopularBool)
+        {
+            _fileModels.Reverse();
+            PopularBool = !PopularBool;
+            shouldRender = !shouldRender;
+        }
+    }
+
+    private void PopularFile24()
+    {
+        
+    }
+
+
+
+}
+
+@functions {
+
+
+
 
 }

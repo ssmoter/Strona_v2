@@ -6,6 +6,7 @@ namespace Strona_v2.Server.Data.SqlData.File
     public interface IFileToSQL
     {
         Task CreateFile(FileModelServer file);
+        Task DeteteFileModel(int Id);
         Task<FileModelServer> GetFileModel(FileModelServer file);
         Task<IList<FileModelServer>> GetFileModels();
         Task<IList<FileModelServer>> GetFileModelsSimple();
@@ -78,6 +79,15 @@ namespace Strona_v2.Server.Data.SqlData.File
                 " FROM " + TableName;           
 
             return await _SqlDataAccess.LoadDataList<FileModelServer>(sql);
+        }
+
+        //Usuwanie rekordu
+        public async Task DeteteFileModel(int Id)
+        {
+            string sql = "DELETE FROM dbo." + TableName +
+                " WHERE " + nameof(FileModelServer.Id) + " = " + Id;
+
+            await _SqlDataAccess.SaveData(sql, Id);
         }
 
     }

@@ -22,6 +22,15 @@ namespace Strona_v2.Shared.User
         public string Token { get; set; }
         public DateTimeOffset ExpiryDate { get; set; }
 
+
+        public UserLogin CastFromUserRegisterServer(UserRegisterServer server)
+        {
+            UserLogin login = new();
+
+            login.Email = server.Email;
+            login.Password = server.Password;
+            return login;
+        }
     }
 
 }

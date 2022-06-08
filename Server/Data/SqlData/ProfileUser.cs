@@ -1,5 +1,6 @@
 ﻿using Strona_v2.Shared.SqlDataAccess;
 using Strona_v2.Shared.User;
+using System.Xml.Linq;
 
 namespace Strona_v2.Server.Data.SqlData
 {
@@ -37,6 +38,5 @@ namespace Strona_v2.Server.Data.SqlData
 
             return await _sqlDataAccess.LoadData<UserPublic>(sql);
         }
-
     }
 }

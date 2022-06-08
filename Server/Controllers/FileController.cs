@@ -14,8 +14,8 @@ namespace Strona_v2.Server.Controllers
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly ILogger<FileController> _logger;
         private ISaveFileToSQL _IsaveFileToSQL;
-        private readonly IFileToSQL _FileToSQL;
-        private readonly IHashids _hashids;
+        private readonly IFileToSQL _IFileToSQL;
+        private readonly IHashids _Ihashids;
 
 
         public FileController(IWebHostEnvironment webHostEnvironment, ILogger<FileController> logger, ISaveFileToSQL isaveFileToSQL, IFileToSQL fileToSQL, IHashids hashids)
@@ -23,41 +23,42 @@ namespace Strona_v2.Server.Controllers
             _webHostEnvironment = webHostEnvironment;
             _logger = logger;
             _IsaveFileToSQL = isaveFileToSQL;
-            _FileToSQL = fileToSQL;
-            _hashids = hashids;
+            _IFileToSQL = fileToSQL;
+            _Ihashids = hashids;
         }
         //zwracanie listy modeli
         [HttpGet]
-        public async Task<IList<FileModelClient>> GetFile()
+        //public async Task<IList<FileModelClient>> GetFile()
+        public async Task<IActionResult> GetFile()
         {
-            var server = await _FileToSQL.GetFileModelsSimple();
+            var server = await _IFileToSQL.GetFileModelsSimple();
 
             List<FileModelClient> client = new();
 
             for (int i = 0; i < server.Count; i++)
             {
                 client.Add(server[i].CastToClient(server[i]));
-                client[i].Id = _hashids.Encode(server[i].Id, 11);
+                client[i].Id = _Ihashids.Encode(server[i].Id, 11);
             }
-            return client;
+            return Ok(client);
         }
         //zwracanie konkretnego modelu
         [HttpGet]
         [Route("single")]
-        public async Task<ActionResult> GetFile(string id)
+        public async Task<IActionResult> GetFile(string id)
         {
             FileModelServer server = new();
-            var ravId = _hashids.Decode(id);
-            if (ravId.Length==0)
+            var ravId = _Ihashids.Decode(id);
+            if (ravId.Length == 0)
             {
                 return NotFound();
             }
             server.Id = ravId[0];
-            server = await _FileToSQL.GetFileModel(server);
+            server = await _IFileToSQL.GetFileModel(server);
 
-            var client=server.CastToClient(server);
-            client.Id =_hashids.Encode(server.Id, 11);
-            client.UserId=_hashids.Encode(server.UserId, 11);
+            var client = server.CastToClient(server);
+            client.Id = _Ihashids.Encode(server.Id, 11);
+            client.UserId = _Ihashids.Encode(server.UserId, 11);
 
             return Ok(client);
         }
@@ -65,20 +66,20 @@ namespace Strona_v2.Server.Controllers
 
         [HttpGet]
         [Route("img")]
-        public async Task<ActionResult> ShowImg(string UserId,string StoredFileName,string Type)
+        public async Task<IActionResult> ShowImg(string UserId, string StoredFileName, string Type)
         {
-            var ravId = _hashids.Decode(UserId);
-            if (ravId.Length==0)
+            var ravId = _Ihashids.Decode(UserId);
+            if (ravId.Length == 0)
             {
                 return NotFound();
             }
-            
+
             var path = Path.Combine(_webHostEnvironment.ContentRootPath,
                 _webHostEnvironment.EnvironmentName, "unsafe_uploads", ravId[0].ToString(), StoredFileName);
 
             try
             {
-                var image= System.IO.File.OpenRead(path);
+                var image = System.IO.File.OpenRead(path);
 
                 return File(image, "image/" + Type);
             }
@@ -97,10 +98,10 @@ namespace Strona_v2.Server.Controllers
         public async Task<IActionResult> PostModel(FileModelClient client)
         {
             client.Created = DateTimeOffset.Now;
-
+            DeleteFile deleteFile = new(_logger, _webHostEnvironment);
             FileModelServer server = new();
             server = client.CastToServer(client);
-            var rawUserId = _hashids.Decode(client.UserId);
+            var rawUserId = _Ihashids.Decode(client.UserId);
             if (rawUserId.Length == 0)
             {
                 return NotFound();
@@ -113,10 +114,14 @@ namespace Strona_v2.Server.Controllers
             {
                 return Ok(DateTimeOffset.Now);
             }
-            //usunięcie rekordu bo nie udało się stworzyć tabeli
+            //usunięcie rekordu bo nie udało się stworzyć tabeli dla komentarzy
+            //oraz usunięcie plików
             if (!result)
             {
-
+                var servers = await _IFileToSQL.GetFileModelsSimple();
+                int LastId = servers[servers.Count - 1].Id;
+                await _IFileToSQL.DeteteFileModel(LastId);
+                await deleteFile.Delete(servers[LastId]);
             }
             return BadRequest();
         }
@@ -125,13 +130,13 @@ namespace Strona_v2.Server.Controllers
         [HttpPost]
         [Route("img")]
         [TokenAuthenticationFilter]
-        public async Task<ActionResult> PostFile(
+        public async Task<IActionResult> PostFile(
             [FromForm] IEnumerable<IFormFile> files, string UserId)
         {
             FileUpload fileUpload = new FileUpload();
             FileModelServer fileM = new();
 
-            var rawUserId = _hashids.Decode(UserId);
+            var rawUserId = _Ihashids.Decode(UserId);
             if (rawUserId.Length == 0)
             {
                 return NotFound();

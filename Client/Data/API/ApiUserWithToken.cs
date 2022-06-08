@@ -17,18 +17,21 @@ namespace Strona_v2.Client.Data.API
     {
         public HttpClient _httpClient { get; set; }
         private readonly ILocalStorageService _localStorage;
-        private readonly TokenHttpClient _addTokenHttpClient;
+        private readonly ITokenHttpClient _addTokenHttpClient;
         public string ApiStringName { get; set; }
 
-        public ApiUserWithToken(HttpClient httpClient, ILocalStorageService localStorage)
+        public ApiUserWithToken(HttpClient httpClient,
+            ILocalStorageService localStorage,
+            ITokenHttpClient addTokenHttpClient)
         {
             _httpClient = httpClient;
             _httpClient.DefaultRequestHeaders.Clear();
             UrlString _Url = new();
             ApiStringName = _Url.User;
 
-            _addTokenHttpClient = new(localStorage);
+            //_addTokenHttpClient = new(localStorage);
             _localStorage = localStorage;
+            _addTokenHttpClient = addTokenHttpClient;
         }
         //Edycja profilu
         public async Task<HttpResponseMessage> EditProfilPach(UserLogin userLogin, UserEditProfile usereditProfile)

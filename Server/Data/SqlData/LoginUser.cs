@@ -7,6 +7,8 @@ namespace Strona_v2.Server.Data.SqlData
     {
         Task<cToken> CheckTokenAndTime(string Token);
         Task<cToken> CheckTokenAndTime(string Email, string Password);
+        Task<IList<string>> IndividualEmail();
+        Task Register(UserRegisterServer server);
         void SaveNewToken(UserLogin user);
         Task<UserLogin> UserLoginAsync(string Email, string Password);
     }
@@ -60,5 +62,26 @@ namespace Strona_v2.Server.Data.SqlData
 
             return await _dataAccess.LoadData<cToken>(sql);
         }
+
+        //pobieranie Emaili do sprawdzenia czy już taki istnieje
+        public async Task<IList<string>> IndividualEmail()
+        {
+            string sql = "SELECT  " + nameof(UserEditProfile.Email) +
+                " FROM dbo." + TableName;
+
+            return await _dataAccess.LoadDataList<string>(sql);
+        }
+
+        //Rejestracja
+        public async Task Register(UserRegisterServer server)
+        {
+            string sql = "INSERT INTO dbo." + TableName +
+                "\n (" + nameof(UserRegisterServer.Name) + ", " + nameof(UserRegisterServer.Email) + ", " + nameof(UserRegisterServer.Password) + "," + nameof(UserRegisterServer.DataCreat) + "," + nameof(UserRegisterServer.LastOnline) +
+                ")\n VALUES\n (@" +
+                nameof(UserRegisterServer.Name) + ", @" + nameof(UserRegisterServer.Email) + ", @" + nameof(UserRegisterServer.Password) + ", @" + nameof(UserRegisterServer.DataCreat) + ", @" + nameof(UserRegisterServer.LastOnline) + ")";
+
+            await _dataAccess.SaveData(sql, server);
+        }
+
     }
 }

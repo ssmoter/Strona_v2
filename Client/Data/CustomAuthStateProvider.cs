@@ -10,13 +10,15 @@ namespace Strona_v2.Client.Data
     {
         private readonly ILocalStorageService _LocalStorage;
         private readonly AuthenticationState _anonymous;
-        private ApiUserWithToken _apiUserWithToken;
+        private IApiUserWithToken _apiUserWithToken;
 
-        public CustomAuthStateProvider(ILocalStorageService localStorage, HttpClient httpClient)
+        public CustomAuthStateProvider(ILocalStorageService localStorage,
+                       IApiUserWithToken apiUserWithToken)
         {
             _LocalStorage = localStorage;
             _anonymous = new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
-            _apiUserWithToken = new(httpClient, localStorage);
+            _apiUserWithToken = apiUserWithToken;
+            //_apiUserWithToken = new(httpClient, localStorage);
         }
 
         public async override Task<AuthenticationState> GetAuthenticationStateAsync()
