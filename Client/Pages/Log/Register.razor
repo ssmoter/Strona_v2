@@ -1,0 +1,150 @@
+﻿@page "/Register"
+
+@inject ToastService _toast;
+@inject ILogger<Register> _logger;
+@inject IApiUser _apiUser;
+@inject NavigationManager _navigation;
+@inject ILocalStorageService _localStorage;
+@inject AuthenticationStateProvider AuthStateProvider
+
+<EditForm Model="userRegister" OnValidSubmit="RegisterAsync">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    @if (!string.IsNullOrEmpty(SecondPassword))
+    {
+        @if (userRegister.Password != SecondPassword)
+        {
+            <div class="col-3">
+                <p>
+                    <span style="color:red">&nbsp;&nbsp;&nbsp;<span style="font-size:20px">&bull;&nbsp;</span>Hasła są różne</span>
+                </p>
+            </div>
+        }
+    }
+
+    @if (email > 0)
+    {
+        <div class="col-3">
+            <p>
+                <span style="color:red">&nbsp;&nbsp;&nbsp;<span style="font-size:20px">&bull;&nbsp;</span>@IndividualEmailString</span>
+            </p>
+        </div>
+    }
+    <div @onclick="IndividualEmail">
+        <div class="form-group">
+            <label for="Name">
+                Nick:
+                <span>
+                    <InputText id="name" type="name" @bind-Value="userRegister.Name" class="form-control"></InputText>
+                </span>
+            </label>
+        </div>
+        <div class="form-group">
+            <label for="email">
+                Email:
+                <span>
+                    <InputText id="email" type="email" @bind-Value="userRegister.Email" class="form-control"></InputText>
+                </span>
+            </label>
+        </div>
+        <div class="form-group">
+            <label for="password">
+                Hasło:
+                <span>
+                    <InputText id="password" type="password" @bind-Value="userRegister.Password" class="form-control"></InputText>
+                </span>
+            </label>
+        </div>
+        <div class="form-group">
+            <label for="password">
+                Powtórz hasło:
+                <span>
+                    <InputText id="secondpassword" type="password" @bind-Value="SecondPassword" class="form-control"></InputText>
+                </span>
+            </label>
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Rejestracja</button>
+
+</EditForm>
+
+
+
+@code {
+    private UserRegisterClient userRegister = new();
+    private string? SecondPassword = null;
+
+    private string IndividualEmailString = "";
+    int email = -1;
+
+    private async Task IndividualEmail()
+    {
+
+        if (!string.IsNullOrEmpty(userRegister.Email))
+        {
+            email = await _apiUser.IndividualEmail(_logger, userRegister.Email);
+            if (email == 0)
+            {
+                IndividualEmailString = "";
+            }
+            else if (email == 1)
+            {
+                IndividualEmailString = "Email został już zajęty ";
+            }
+            else if (email == 2)
+            {
+                IndividualEmailString = "Inny nieoczekiwany błąd ";
+            }
+        }
+    }
+
+
+
+    private async Task RegisterAsync()
+    {
+        if (userRegister.Password == SecondPassword)
+        {
+            if (email <= 0)
+            {
+                UserLogin login = await _apiUser.Register(_logger, userRegister);
+                if (login != null)
+                {
+                    _toast.ShowToast("Zarejestrowano się", ToastLevel.Success);
+                    await LogIn(login);
+                }
+            }
+        }
+        if (userRegister.Password != SecondPassword)
+        {
+            _toast.ShowToast("Hasła nie są identyczne", ToastLevel.Error);
+        }
+    }
+
+    private async Task LogIn(UserLogin user)
+    {
+        var LogUser = await _apiUser.LogIn(user.Email, user.Password);
+
+
+        if (LogUser != null)
+        {
+
+            UserLocalStorage userLocal = new();
+            userLocal.Name = LogUser.Name;
+            userLocal.Email = LogUser.Email;
+            userLocal.Token = LogUser.Token;
+            userLocal.Id = LogUser.SecondId;
+
+            await _localStorage.SetItemAsync<UserLocalStorage>(nameof(UserLocalStorage), userLocal);
+
+            await AuthStateProvider.GetAuthenticationStateAsync();
+            _toast.ShowToast("Zalogowano się", ToastLevel.Success);
+            _navigation.NavigateTo("");
+        }
+
+
+    }
+
+
+
+}
