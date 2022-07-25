@@ -1,23 +1,43 @@
 ﻿@inject IAPIComment _ApiComment
 @inject ILogger<CommentFile> _logger
+@inject IApiUser _IApiUser;
+
+@if (_Comments != null)
+{
+    <div>
+        @if (_Comments.Count - 1 >= 0)
+        {
+            <p>Komentarze:</p>
+            <div class="comment-css">
+                @for (var i = 0; i < _Comments.Count; i++)
+                {
+                    <div class="">
+                        <p>
+                            <span>
+                                @_users[i].Name
+                            </span>
+                            <span>
+                                @_Comments[i].Like/
+                            </span>
+                            <span>
+                                @_Comments[i].UnLike
+                            </span>
+                        </p>
+                        <p>@_Comments[i].Created.ToString("yyyy'-'MM'-'dd'/'HH':'mm':'ss")</p>
+                        <p>@_Comments[i].Comment</p>
+                    </div>
+                    <hr />
+                }
+            </div>
+        }
 
 
-<div>
-    @if (_Comments != null)
-    {
-        <div style="max-height:200px;max-width:200px;padding:50px;overflow-y:scroll;">
-            @for (var i = 0; i < _Comments.Count(); i++)
-            {
-                <p>@_Comments[i].Comment</p>
-            }
-        </div>
-    }
-    else
-    {
-        <p>Loading...</p>
-    }
-
-</div>
+    </div>
+}
+@if (_Comments == null)
+{
+    <p>Loading...</p>
+}
 
 
 
@@ -26,10 +46,35 @@
     public string? _FileId { get; set; }
 
     private List<CommentModelClient>? _Comments;
+    private List<UserPublic>? _users { get; set; }
 
     protected async override Task OnInitializedAsync()
     {
         _Comments = await _ApiComment.GetCommentAsync(_FileId, _logger);
+        _users = new();
+        foreach (var item in _Comments)
+        {
+            await GetUserName(item.UserId);
+        }
     }
+    private async Task GetUserName(string id)
+    {
+        var user = await _IApiUser.ProfileUserPublicID(id, _logger);
+        if (user != null)
+        {
+            _users.Add(user);
+        }
+        else
+        {
+            UserPublic user1 = new()
+                {
+                    Name = "Brak Danych",
+                    Id = "Brak Danych"
+
+                };
+            _users.Add(user1);
+        }
+    }
+
 
 }

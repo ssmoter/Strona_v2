@@ -7,7 +7,7 @@
 {
     <span @onclick="@RefreshModel">
         <button @onclick="@PopularFile">Popularne</button>
-        <button @onclick="@PopularFile24">Popularne 24h</button>
+        @*<button @onclick="@PopularFile24">Popularne 24h</button>*@
     </span>
 
     <div>
@@ -15,9 +15,12 @@
         {
             @for (var i = 0; i < _fileModels.Count(); i++)
             {
-                <div class="border border-dark">
+                <div class="">
                     <MainFile _Id=@_fileModels[i].Id></MainFile>
                 </div>
+                <br />
+                <hr />
+                <br />
             }
         }
     </div>
@@ -71,7 +74,7 @@ else
 
     private void PopularFile24()
     {
-        
+
     }
 
 

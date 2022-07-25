@@ -15,3 +15,5 @@
 --SELECT * FROM dbo.CommentModelServer_4002
 
 --delete from dbo.FileData where Id = 5003
+
+UPDATE dbo.UserData SET EmailConfirmed=0 WHERE Id=N'4'

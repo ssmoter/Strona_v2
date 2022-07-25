@@ -7,69 +7,66 @@
 @inject ILocalStorageService _localStorage;
 @inject AuthenticationStateProvider AuthStateProvider
 
-<EditForm Model="userRegister" OnValidSubmit="RegisterAsync">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
+<div class="input-text-css">
+    <dvi>
+        <EditForm Model="userRegister" OnValidSubmit="RegisterAsync">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+            @if (!string.IsNullOrEmpty(SecondPassword))
+            {
+                @if (userRegister.Password != SecondPassword)
+                {
+                    <div class="">
+                        <p>
+                            <span style="color:red">&nbsp;&nbsp;&nbsp;<span style="font-size:20px">&bull;&nbsp;</span>Hasła są różne</span>
+                        </p>
+                    </div>
+                }
+            }
+            @if (email > 0)
+            {
+                <div class="">
+                    <p>
+                        <span style="color:red">&nbsp;&nbsp;&nbsp;<span style="font-size:20px">&bull;&nbsp;</span>@IndividualEmailString</span>
+                    </p>
+                </div>
+            }
+            <div @onclick="IndividualEmail">
+                <div class="">
+                    <label for="Name">Nick:</label>
+                    <span>
+                        <InputText id="" type="name" @bind-Value="userRegister.Name" class="form-control input-css"></InputText>
+                    </span>
+                </div>
+                <div class="">
+                    <label for="email">Email:</label>
+                    <span>
+                        <InputText id="" type="email" @bind-Value="userRegister.Email" class="form-control input-css"></InputText>
+                    </span>
 
-    @if (!string.IsNullOrEmpty(SecondPassword))
-    {
-        @if (userRegister.Password != SecondPassword)
-        {
-            <div class="col-3">
-                <p>
-                    <span style="color:red">&nbsp;&nbsp;&nbsp;<span style="font-size:20px">&bull;&nbsp;</span>Hasła są różne</span>
-                </p>
+                </div>
+                <div class="">
+                    <label for="password">Hasło:</label>
+                    <span>
+                        <InputText id="" type="password" @bind-Value="userRegister.Password" class="form-control input-css"></InputText>
+                    </span>
+                </div>
+                <div class="">
+                    <label for="password">Powtórz hasło:</label>
+                    <span>
+                        <InputText id="" type="password" @bind-Value="SecondPassword" class="form-control input-css"></InputText>
+                    </span>
+                </div>
             </div>
-        }
-    }
-
-    @if (email > 0)
-    {
-        <div class="col-3">
-            <p>
-                <span style="color:red">&nbsp;&nbsp;&nbsp;<span style="font-size:20px">&bull;&nbsp;</span>@IndividualEmailString</span>
-            </p>
-        </div>
-    }
-    <div @onclick="IndividualEmail">
-        <div class="form-group">
-            <label for="Name">
-                Nick:
-                <span>
-                    <InputText id="name" type="name" @bind-Value="userRegister.Name" class="form-control"></InputText>
-                </span>
-            </label>
-        </div>
-        <div class="form-group">
-            <label for="email">
-                Email:
-                <span>
-                    <InputText id="email" type="email" @bind-Value="userRegister.Email" class="form-control"></InputText>
-                </span>
-            </label>
-        </div>
-        <div class="form-group">
-            <label for="password">
-                Hasło:
-                <span>
-                    <InputText id="password" type="password" @bind-Value="userRegister.Password" class="form-control"></InputText>
-                </span>
-            </label>
-        </div>
-        <div class="form-group">
-            <label for="password">
-                Powtórz hasło:
-                <span>
-                    <InputText id="secondpassword" type="password" @bind-Value="SecondPassword" class="form-control"></InputText>
-                </span>
-            </label>
-        </div>
+            <button type="submit" class="btn btn-primary">Rejestracja</button>
+        </EditForm>
+    </dvi>
+</div>
+<div class="ad-css">
+    <div>
+        Kiedyś reklama
     </div>
-    <button type="submit" class="btn btn-primary">Rejestracja</button>
-
-</EditForm>
-
-
+</div>
 
 @code {
     private UserRegisterClient userRegister = new();
@@ -144,7 +141,5 @@
 
 
     }
-
-
 
 }

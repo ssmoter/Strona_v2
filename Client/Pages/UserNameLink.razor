@@ -1,0 +1,47 @@
+﻿@inject ILogger<UserNameLink> _logger
+@inject IApiUser _IApiUser;
+@inject NavigationManager _Navigation
+
+<div class="text-css">
+    @if (_user != null)
+    {
+        <div @onclick="@GoToProfile">
+            <p>@_user.Name</p>
+        </div>       
+    }
+    else
+    {
+        <div>Loading...</div>
+    }
+</div>
+
+
+@code {
+
+    [Parameter]
+    public string ID { get; set; }
+    private UserPublic? _user { get; set; } = new()
+        {
+            Name = "Brak Danych",
+            Id = ""
+        };
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetUserName(ID);
+    }
+
+    private async Task GetUserName(string id)
+    {
+        var user = await _IApiUser.ProfileUserPublicID(id, _logger);
+        if (user != null)
+        {
+            _user = user;
+        }
+    }
+
+    private void GoToProfile()
+    {
+        _Navigation.NavigateTo("/profile/" + _user.Id);
+    }
+}

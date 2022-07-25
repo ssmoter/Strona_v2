@@ -7,25 +7,34 @@
 @inject IApiUser ApiUser
 @inject ToastService _toast;
 
-<EditForm Model="user" OnSubmit="HandleLogi">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
-    @if (CorrectLoginBool)
-    {
-        <span style="color:red">&nbsp;&nbsp;&nbsp;<span style="font-size:20px">&bull;&nbsp;</span>@CorrectLoginString</span>
-    }
-    <div class="form-group col-3">
-        <label for="useremail">Email</label>
-        <InputText id="email" @bind-Value="user.Email" class="form-control"></InputText>
-    </div>
-    <div class="form-group col-3">
-        <label for="password">Password</label>
-        <InputText id="password" @bind-Value="user.Password" type="password" class="form-control"></InputText>
-    </div>
+<div class="input-text-css">
     <div>
-        <button type="submit" class="btn btn-primary">Login</button>
+        <EditForm Model="user" OnSubmit="HandleLogi">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+            @if (CorrectLoginBool)
+            {
+                <span style="color:red">&nbsp;&nbsp;&nbsp;<span style="font-size:20px">&bull;&nbsp;</span>@CorrectLoginString</span>
+            }
+            <div class="form-group ">
+                <label for="email">Email</label>
+                <InputText id="email" @bind-Value="user.Email" class="form-control input-css"></InputText>
+            </div>
+            <div class="form-group ">
+                <label for="password">Password</label>
+                <InputText id="password" @bind-Value="user.Password" type="password" class="form-control input-css"></InputText>
+            </div>
+            <div>
+                <button type="submit" class="btn btn-primary">Login</button>
+            </div>
+        </EditForm>
     </div>
-</EditForm>
+</div>
+<div class="ad-css">
+    <div>
+        kiedyś reklama
+    </div>
+</div>
 
 @code {
     private UserLogin user = new();
@@ -57,7 +66,7 @@
             userLocal.Email = LogUser.Email;
             userLocal.Token = LogUser.Token;
             userLocal.Id = LogUser.SecondId;
-            
+
             await LocalStorage.SetItemAsync<UserLocalStorage>(nameof(UserLocalStorage), userLocal);
 
             await AuthStateProvider.GetAuthenticationStateAsync();

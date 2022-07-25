@@ -63,7 +63,7 @@ a, .btn-link {
         content: "An error has occurred."
     }
 
-/*.toast {
+.toast {
     display: none;
     padding: 1.5rem;
     color: #fff;
@@ -74,7 +74,7 @@ a, .btn-link {
     border-radius: 1rem;
     left: 50%;
 }
-*/
+
 .toast-icon {
     display: flex;
     flex-direction: column;
@@ -104,7 +104,7 @@ a, .btn-link {
     margin-top: -50px;
     margin-left: -100px;
     border-radius: 3rem;
-   /* z-index: 100;*/
+    z-index: 100;
 }
 
 @keyframes fadein {
@@ -117,10 +117,203 @@ a, .btn-link {
     }
 }
 
-.img-avatar {
+.img-avatar-css {
 }
 
-.img-file {
-    max-width: 10vw;
-    height: auto;
+.img-current-css {
+    max-width: 100%;
+    margin: auto;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+    opacity: 1;
 }
+
+    .img-current-css:hover {
+        opacity: 0.8;
+    }
+
+.img-previe-css {
+    text-align: center;
+}
+
+    .img-previe-css img {
+        display: inline-block;
+        /*margin-left: auto;
+        margin-right: auto;*/
+        vertical-align: middle;
+        max-width: 100px;
+        height: auto;
+        opacity: 0.5;
+        padding: 8px;
+    }
+
+        .img-previe-css img:hover {
+            opacity: 1;
+            cursor: pointer;
+        }
+
+    .img-previe-css:after {
+        display: none;
+        float: none;
+    }
+
+.mainLayout-css {
+    background-color: #202020 !important;
+    color: white !important;
+}
+
+.navMenu-css {
+    background-color: #353535 !important;
+}
+
+
+.index-css {
+    background-color: #303030;
+    color: white !important;
+}
+
+
+.comment-css {
+    background-color: #3b3b3b;
+    display: block;
+    max-height: 300px;
+    max-width: 100%;
+    overflow-y: scroll;
+    padding: 10px;
+}
+
+
+.comment-css-main {
+}
+
+.comment-css-current {
+}
+
+
+
+
+.current-css {
+    float: left;
+    width: 50%;
+}
+
+@media screen and (max-width:640px) {
+    .comment-css-main div {
+        display: none;
+    }
+}
+
+.ad-css {
+    float: left;
+    width: 25% !important;
+    display: none;
+}
+
+.indexMain-css {
+    float: left;
+    width: 50%;
+}
+
+.input-text-css {
+    float: left;
+    width: 50%;
+    max-width: 400px;
+}
+
+.input-text-area-css {
+    width: 100%;
+    max-width: inherit;
+}
+
+.input-css {
+    background-color: #404040;
+    color: white;
+}
+
+    .input-css:focus {
+        background-color: #262626;
+        color: white;
+    }
+
+    .input-css::backdrop {
+        background-color: #404040;
+    }
+
+
+@media screen and (max-width:1024px) {
+    .ad-css {
+        display: none;
+    }
+
+    .indexMain-css {
+        width: auto;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .current-css {
+        width: auto;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .input-text-css {
+        width: 100%;
+    }
+
+    .input-text-area-css {
+        width: 100%;
+    }
+}
+
+.text-css {
+    background-color: #292929;
+    color: white;
+}
+
+    .text-css:hover {
+        background-color: #404040;
+    }
+
+
+.button-css {
+    background-color: #424242;
+    color: white;
+}
+
+    .button-css:hover {
+        background-color: #616161;
+    }
+.button-group-css {
+    text-align:center;
+}
+.button-group-css button{
+    display:inline-block;
+    vertical-align:middle;
+    padding:10px;
+}
+
+.separation-css {
+    background-color: #333333 !important;
+}
+
+/*#Main_block {
+}
+
+#Left {
+    float: none;
+    width: 50%;
+    max-height: contain;
+}
+
+#Middle {
+    float: right;
+    width: 25%;
+}
+
+@media all and(max-width:641px) {
+    #Left, #Middle {
+        float: none;
+    }
+}*/

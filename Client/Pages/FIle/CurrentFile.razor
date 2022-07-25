@@ -4,77 +4,107 @@
 @inject IAPIComment _IApiComment
 @inject ILogger<CurrentFile> _logger
 @inject ToastService _toastService
+@inject IApiUser _IApiUser;
 
 
-@if (_modelPublic != null)
-{
-    @if (_modelPublic.Files.Count() - 1 > 1)
-    {
-        <div class="">
-            @for (var i = 0; i < _modelPublic.Files.Count() - 1; i++)
-            {
-                int Iint = i;
-                <span @onclick="@(e=>ChangeImg(Iint))">
-                    <img width="80" src="@(_IAPIFileDowloand.GetFileImg(_modelPublic.UserId,_modelPublic.Files[i].StoredFileName,_modelPublic.Files[i].Type,_logger))" />
-                </span>
-            }
-        </div>
-    }
-    <div style="max-height:200px;min-height:100px;">
-        <span>
-            <img src="@(_IAPIFileDowloand.GetFileImg(_modelPublic.UserId,_modelPublic.Files[ImgId].StoredFileName,_modelPublic.Files[ImgId].Type,_logger))" style="max-width:500px;height:auto;" />
-        </span>
-    </div>
-
-
-}
-else
-{
-    <h3>Loading...</h3>
-}
-
-<AuthorizeView Context="authContext">
-    <Authorized>
-        <div>
-            <EditForm Context="formContext" Model="_newComment" OnSubmit="@SendComment">
-                <DataAnnotationsValidator />
-                <ValidationSummary />
-                <div>
-                    <label>
-                        <span>
-                            <InputTextArea @bind-Value="@_newComment.Comment"></InputTextArea>
-                        </span>
-                    </label>
-                </div>
-                <button class="btn btn-primary" type="submit">Wyślij</button>
-            </EditForm>
-        </div>
-    </Authorized>
-</AuthorizeView>
-
-@if (_commentModel != null)
-{
-    <div style="">
-        @for (var i = 0; i < _commentModel.Count(); i++)
+<div class="current-css">
+    <div>
+        @if (_modelPublic != null)
         {
-            <p>@_commentModel[i].Comment</p>
+            <div>
+                <UserNameLink ID="@_modelPublic.UserId"></UserNameLink>
+                <h3>@_modelPublic.Title</h3>
+                <p><span>@_modelPublic.NoLike</span> / <span>@_modelPublic.Spam</span></p>
+                <p>@_modelPublic.Description</p>
+            </div>
+            <div>
+                @if (_modelPublic.Files.Count - 1 > 0)
+                {
+                    @if (_modelPublic.Files.Count - 1 > 1)
+                    {
+                        <div class="img-previe-css">
+                            @for (var i = 0; i < _modelPublic.Files.Count - 1; i++)
+                            {
+                                int Iint = i;
+                                <span class="" @onclick="@(e=>ChangeImg(Iint))">
+                                    <img src="@(_IAPIFileDowloand.GetFileImg(_modelPublic.UserId,_modelPublic.Files[i].StoredFileName,_modelPublic.Files[i].Type,_logger))" />
+                                </span>
+                            }
+                        </div>
+                    }
+                    <div>
+                        <div>
+                            <img class="img-current-css" src="@(_IAPIFileDowloand.GetFileImg(_modelPublic.UserId,_modelPublic.Files[ImgId].StoredFileName,_modelPublic.Files[ImgId].Type,_logger))" />
+                        </div>
+                    </div>
+                }
+            </div>
+
+        }
+        else
+        {
+            <h3>Loading...</h3>
+        }
+        <div>
+            <AuthorizeView Context="authContext">
+                <Authorized>
+                    <div>
+                        <EditForm Context="formContext" Model="_newComment" OnSubmit="@SendComment">
+                            <DataAnnotationsValidator />
+                            <ValidationSummary />
+                            <div class="input-text-area-css">
+                                <span>
+                                    <InputTextArea @bind-Value="@_newComment.Comment" class="form-control input-css"></InputTextArea>
+                                </span>
+                            </div>
+                            <button class="btn btn-primary" type="submit">Wyślij</button>
+                        </EditForm>
+                    </div>
+                </Authorized>
+            </AuthorizeView>
+        </div>
+        @if (_Comments != null)
+        {
+            <div class="">
+                @for (var i = 0; i < _Comments.Count; i++)
+                {
+                    <div class="border border-1 border-dark">
+                        <p>
+                            <UserNameLink ID="@_Comments[i].UserId"></UserNameLink>
+                            <span>
+                                &nbsp; @_Comments[i].Like/
+                            </span>
+                            <span>
+                                @_Comments[i].UnLike
+                            </span>
+                        </p>
+                        <p>@_Comments[i].Created.ToString("yyyy'-'MM'-'dd'/'HH':'mm':'ss");</p>
+                        <p>@_Comments[i].Comment</p>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <h6>Loading...</h6>
         }
     </div>
-}
-else
-{
-    <h6>Loading...</h6>
-}
-
-
+</div>
+<div class="ad-css">
+    <div>
+        Kiedyś reklamy
+    </div>
+</div>
 
 @code {
     [Parameter]
     public string Id { get; set; }
 
-    private FileModelPublic _modelPublic;
-    private List<CommentModelClient> _commentModel;
-    private CommentModelClient _newComment = new();
+    private FileModelPublic? _modelPublic;
+    private List<CommentModelClient>? _Comments;
+    private CommentModelClient? _newComment = new();
+    private List<UserPublic>? _users { get; set; }
+    private UserPublic? _user { get; set; }
 
     private int ImgId = 0;
     private void ChangeImg(int id)
@@ -83,31 +113,83 @@ else
     }
 
     private static readonly string[] Toasts = new[]
-                                                               {
-        "Wysłano komentarz","Coś poszło nie tak"
+    {
+        "Wysłano komentarz",                    //0
+        "Coś poszło nie tak",                   //1
+        "Nie możesz przesłać pustej wiadomości" //2
     };
 
     private async void SendComment()
     {
-
-        _newComment.FileId = Id;
-        var respons = await _IApiComment.SendComment(_newComment, _logger);
-
-        if (respons)
+        if (string.IsNullOrEmpty(_newComment.Comment) || string.IsNullOrWhiteSpace(_newComment.Comment))
         {
-            _newComment = new();
-            _commentModel = await _IApiComment.GetCommentAsync(Id, _logger);
-            _toastService.ShowToast(Toasts[0], ToastLevel.Success);
-            StateHasChanged();
+            _toastService.ShowToast(Toasts[2], ToastLevel.Error);
         }
-        if (!respons)
+        else if (!string.IsNullOrEmpty(_newComment.Comment) || !string.IsNullOrWhiteSpace(_newComment.Comment))
         {
-           // _toastService.ShowToast(Toasts[1], ToastLevel.Error);
+            _newComment.FileId = Id;
+            var respons = await _IApiComment.SendComment(_newComment, _logger);
 
+            if (respons)
+            {
+                await SuccsefulResponse();
+            }
+            if (!respons)
+            {
+                _toastService.ShowToast(Toasts[1], ToastLevel.Error);
+            }
         }
 
     }
 
+    private async Task SuccsefulResponse()
+    {
+        _newComment = new();
+        _Comments = await _IApiComment.GetCommentAsync(Id, _logger);
+        _users = new();
+        foreach (var item in _Comments)
+        {
+            await GetUserName(item.UserId);
+        }
+        _toastService.ShowToast(Toasts[0], ToastLevel.Success);
+        StateHasChanged();
+    }
+
+
+    private async Task GetUserNames(string id)
+    {
+        var user = await _IApiUser.ProfileUserPublicID(id, _logger);
+        if (user != null)
+        {
+            _users.Add(user);
+        }
+        else
+        {
+            UserPublic user1 = new()
+                {
+                    Name = "Brak Danych",
+                    Id = "Brak Danych"
+                };
+            _users.Add(user1);
+        }
+    }
+    private async Task GetUserName(string id)
+    {
+        var user = await _IApiUser.ProfileUserPublicID(id, _logger);
+        if (user != null)
+        {
+            _user = user;
+        }
+        else
+        {
+            UserPublic user1 = new()
+                {
+                    Name = "Brak Danych",
+                    Id = "Brak Danych"
+                };
+            _user = user1;
+        }
+    }
 
     protected async override Task OnInitializedAsync()
     {
@@ -117,12 +199,21 @@ else
         {
             _modelPublic.Files = new();
             _modelPublic.TrimNameTyp();
+
+            _user = new();
+            await GetUserName(_modelPublic.UserId);
+
+            _Comments = await _IApiComment.GetCommentAsync(Id, _logger);
+            if (_Comments != null)
+            {
+                _users = new();
+                foreach (var item in _Comments)
+                {
+                    await GetUserNames(item.UserId);
+                }
+            }
         }
-
-        _commentModel = await _IApiComment.GetCommentAsync(Id, _logger);
-
     }
-
 
 
 }

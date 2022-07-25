@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-
 namespace Strona_v2.Shared.User
 {
     public class UserLogin

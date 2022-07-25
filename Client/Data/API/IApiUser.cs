@@ -6,8 +6,8 @@ namespace Strona_v2.Client.Data.API
     {
         Task<int> IndividualEmail(ILogger logger, string Email);
         Task<UserLogin?> LogIn(string email, string password);
-        //Task<UserPublic> ProfileUserPublic(int Id);
-        Task<UserPublic> ProfileUserPublic(string UserName);
+        Task<UserPublic?> ProfileUserPublicID(string Id, ILogger logger);
+        Task<UserPublic> ProfileUserPublicName(string UserName, ILogger logger);
         Task<UserLogin?> Register(ILogger logger, UserRegisterClient client);
     }
 }

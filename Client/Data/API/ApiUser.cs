@@ -26,11 +26,14 @@ namespace Strona_v2.Client.Data.API
             string Url = ApiStringName + "login?email=" + email + "&password=" + password;
             try
             {
-                var result = await _httpClient.GetFromJsonAsync<UserLogin>(Url);
-                if (result != null)
+                var response = await _httpClient.GetAsync(Url);
+
+                if (response.IsSuccessStatusCode)
                 {
+                    var result = await response.Content.ReadFromJsonAsync<UserLogin?>();
                     return result;
                 }
+
                 return null;
             }
             catch (Exception ex)
@@ -41,44 +44,48 @@ namespace Strona_v2.Client.Data.API
         }
 
         //pobranie profilu usera po Id
-        //public async Task<UserPublic?> ProfileUserPublic(int Id)
-        //{
-        //    try
-        //    {
-        //        var Url = ApiStringName + "profile?id=" + Id;
-        //        var result = await _httpClient.GetFromJsonAsync<UserPublic>(Url);
-        //        if (result != null)
-        //        {
-        //            return result;
-        //        }
-        //        return null;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine(ex.Message);
-        //        throw;
-        //    }
-        //}
-
-
-
-
-        //pobranie profilu usera po nick
-        public async Task<UserPublic?> ProfileUserPublic(string UserName)
+        public async Task<UserPublic?> ProfileUserPublicID(string Id, ILogger logger)
         {
             try
             {
-                var Url = ApiStringName + "profile?userName=" + UserName;
-                var result = await _httpClient.GetFromJsonAsync<UserPublic>(Url);
-                if (result != null)
+                var Url = ApiStringName + "profileID?ID=" + Id;
+                var response = await _httpClient.GetAsync(Url);
+
+                if (response.IsSuccessStatusCode)
                 {
+                    var result = await response.Content.ReadFromJsonAsync<UserPublic?>();
                     return result;
                 }
                 return null;
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                logger.LogError(ex.Message);
+                throw;
+            }
+        }
+
+
+
+
+        //pobranie profilu usera po nick
+        public async Task<UserPublic?> ProfileUserPublicName(string UserName, ILogger logger)
+        {
+            try
+            {
+                var Url = ApiStringName + "profileName?userName=" + UserName;
+                var response = await _httpClient.GetAsync(Url);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var result = await response.Content.ReadFromJsonAsync<UserPublic?>();
+                    return result;
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex.Message);
                 throw;
             }
         }
@@ -109,7 +116,7 @@ namespace Strona_v2.Client.Data.API
         }
 
         //Rejestracja
-        public async Task<UserLogin?> Register(ILogger logger,UserRegisterClient client)
+        public async Task<UserLogin?> Register(ILogger logger, UserRegisterClient client)
         {
             string Url = ApiStringName;
 

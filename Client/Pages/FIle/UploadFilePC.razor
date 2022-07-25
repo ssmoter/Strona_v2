@@ -1,12 +1,13 @@
 ﻿@using Strona_v2.Client.Data.File.Upload
+@*@attribute [Authorize]*@
 
 @inject ILogger<UploadFile> _logger;
 @inject IUploadFileApi _fileApi;
 @inject ToastService _toast;
 
 
-<div class="container-fluid">
-    <div class="col-auto">
+<div class="upload-css">
+    <div>
         @if (uploadFile.Error != null)
         {
             @for (int i = 0; i < uploadFile.Error.TableBool.Count(); i++)
@@ -21,47 +22,35 @@
             }
         }
     </div>
-    <div class="float-start ">
+    <div>
         <h3>Schemat</h3>
-        <p>
-            <div>
-                <label>
-                    Plik:<br />
-                    <InputFile OnChange="Preview" multiple></InputFile>
-                </label>
-            </div>
-        </p>
+        <div>
+            <label>
+                Plik:<br />
+                <InputFile OnChange="Preview" multiple></InputFile>
+            </label>
+        </div>
         <EditForm Model="filePublic" OnValidSubmit="FileUpload">
             <DataAnnotationsValidator />
             <ValidationSummary />
-            <p>
-                <div>
-                    <label>
-                        Tytuł:<br />
-                        <InputTextArea @bind-Value="@filePublic.Title"></InputTextArea>
-                    </label>
-                </div>
-            </p>
-            <p>
-                <div>
-                    <label>
-                        Opis:<br />
-                        <InputTextArea @bind-Value="filePublic.Description"></InputTextArea>
-                    </label>
-                </div>
-            </p>
-            <p>
-                <div>
-                    <label>
-                        Tag:<br />
-                        <InputTextArea @bind-Value="filePublic.Tag"></InputTextArea>
-                    </label>
-                </div>
-            </p>
+            <div>
+                Tytuł:<br />
+                <InputText class="form-control input-css" @bind-Value="@filePublic.Title"></InputText>
+            </div>
+            <div>
+                Opis:<br />
+                <InputTextArea class="form-control input-css" @bind-Value="filePublic.Description"></InputTextArea>
+            </div>
+
+            <div>
+                Tag:<br />
+                <InputText class="form-control input-css" @bind-Value="filePublic.Tag"></InputText>
+            </div>
             <button type="submit">Prześlij</button>
         </EditForm>
     </div>
-
+</div>
+<div class="upload-preview-css">
     <div>
         <h3>Podgląd</h3>
         <div class="">
@@ -81,19 +70,30 @@
                 </p>
             </div>
             <div class="text-center">
-                @if (uploadFile.ImgDataUri != null)
+                @if (uploadFile.ImgDataUri != null && uploadFile.ImgDataUri.Count >= 1)
                 {
                     <div class="col-auto">
-                        @for (var i = 0; i < uploadFile.ImgDataUri.Count(); i++)
+                        @for (var i = 0; i < uploadFile.ImgDataUri.Count; i++)
                         {
-                            <img class="img-fluid" src="@uploadFile.ImgDataUri[i]" style="max-width:" />
+                            int Iint = i;
+                            <span @onclick="@(e=>ChangeImg(Iint))">
+                                <img width="80" class="img-fluid" src="@uploadFile.ImgDataUri[i]" />
+                            </span>
                         }
+                    </div>
+                    <div>
+                        <span>
+                            <img class="img-fluid" src="@uploadFile.ImgDataUri[ImgId] " />
+                        </span>
                     </div>
                 }
             </div>
         </div>
     </div>
 </div>
+
+
+
 
 
 @code {
@@ -115,6 +115,7 @@
     //podgląd pliku
     private async Task Preview(InputFileChangeEventArgs InputFile)
     {
+        uploadFile = new();
         shouldRender = false;
 
         uploadFile = new();
@@ -181,6 +182,16 @@
         }
     }
 
+    private int ImgId = 0;
+    private void ChangeImg(int id)
+    {
+        ImgId = id;
+    }
 
+    private void RemoveImg(int id)
+    {
+
+
+    }
 
 }

@@ -2,40 +2,58 @@
 
 @inject IAPIFileDowloand _IAPIFileDowloand
 @inject ILogger<MainFile> _logger
-
+@inject IApiUser _IApiUser;
+@inject NavigationManager _Navigation
 
 @if (_Model != null)
 {
     <div>
         <div>
-            <h3>@_Model.Title</h3>
-            <p>@_Model.NoLike / @_Model.Spam</p>
-            <p>@_Model.Description</p>
-        </div>
-        @if (_Model.Files.Count() - 1 > 1)
-        {
-            <div class="border border-dark">
-                @for (var i = 0; i < _Model.Files.Count() - 1; i++)
+            <div>
+                <UserNameLink ID="@_Model.UserId"></UserNameLink>
+                <h3 class="text-css " @onclick="GoToCurrent">@_Model.Title</h3>
+                <span class="float-end"> <span>@_Model.NoLike</span> / <span>@_Model.Spam</span></span>
+                <p class="text-css " @onclick="GoToCurrent">@_Model.Description</p>
+            </div>
+            <div class="">
+                @if (_Model.Files.Count - 1 > 1)
                 {
-                    int Iint = i;
-                    <span @onclick="@(e=>ChangeImg(Iint))">
-                        <img width="80" src="@(_IAPIFileDowloand.GetFileImg(_Model.UserId,_Model.Files[i].StoredFileName,_Model.Files[i].Type,_logger))" />
-                    </span>
+                    <div class="img-previe-css">
+                        @for (var i = 0; i < _Model.Files.Count - 1; i++)
+                        {
+                            int Iint = i;
+                            <span class="" @onclick="@(e=>ChangeImg(Iint))">
+                                <img class="" src="@(_IAPIFileDowloand.GetFileImg(_Model.UserId,_Model.Files[i].StoredFileName,_Model.Files[i].Type,_logger))" />
+                            </span>
+                        }
+                    </div>
+                    <br />
+                }
+                @if (@_Model.Files.Count - 1 > 0)
+                {
+                    <NavLink href="@CurrentString">
+                        <span>
+                            <img class="img-current-css" src="@(_IAPIFileDowloand.GetFileImg(_Model.UserId,_Model.Files[ImgId].StoredFileName,_Model.Files[ImgId].Type,_logger))" />
+                        </span>
+                    </NavLink>
                 }
             </div>
-        }
-        @if (@_Model.Files.Count() - 1 > 0) 
-        {
-            <NavLink href="@CurrentString" style="max-height:200px;min-height:100px;">
-                <span>
-                    <img src="@(_IAPIFileDowloand.GetFileImg(_Model.UserId,_Model.Files[ImgId].StoredFileName,_Model.Files[ImgId].Type,_logger))" style="max-width:500px;height:auto;" />
-                </span>
-            </NavLink>
-        }
-        <div class="float-end">
-            <div>
-                <CommentFile _FileId=@_Id></CommentFile>
-            </div>
+        </div>
+        <div class="button-group-css">
+            <span class="comment-css-main">
+                <button class="btn button-css" @onclick="@ChangeStatusComment">@NameComment komentarze</button>
+            </span>
+            <span class="">
+                <button class="btn button-css" @onclick="@ChangeStatusComment">+1</button>
+            </span>
+        </div>
+        <div>
+            @if (ShowComment)
+            {
+                <div class="comment-css-main">
+                    <CommentFile _FileId=@_Id></CommentFile>
+                </div>
+            }
         </div>
 
     </div>
@@ -56,6 +74,8 @@ else
     [Parameter]
     public string? _Id { get; set; }
 
+    private UserPublic? _users { get; set; }
+
     private int ImgId = 0;
     private void ChangeImg(int id)
     {
@@ -75,5 +95,46 @@ else
             _Model.TrimNameTyp();
         }
 
+        _users = new();
+        await GetUserName(_Model.UserId);
+
     }
+    private async Task GetUserName(string id)
+    {
+        var user = await _IApiUser.ProfileUserPublicID(id, _logger);
+        if (user != null)
+        {
+            _users = user;
+        }
+        if (user == null)
+        {
+            UserPublic user1 = new()
+                {
+                    Name = "Brak Danych",
+                    Id = "Brak Danych"
+                };
+            _users = user1;
+        }
+    }
+
+    private void GoToCurrent()
+    {
+        _Navigation.NavigateTo(CurrentString);
+    }
+
+    private bool ShowComment { get; set; } = false;
+    private string NameComment { get; set; } = "Pokaż";
+    private void ChangeStatusComment()
+    {
+        ShowComment = !ShowComment;
+        if (ShowComment)
+        {
+            NameComment = "Ukryj";
+        }
+        if (!ShowComment)
+        {
+            NameComment = "Pokaż";
+        }
+    }
+
 }

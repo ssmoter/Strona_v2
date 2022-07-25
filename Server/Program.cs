@@ -4,6 +4,7 @@ using Strona_v2.Server.Data.FileData;
 using Strona_v2.Server.Data.SqlCreatTable;
 using Strona_v2.Server.Data.SqlData;
 using Strona_v2.Server.Data.SqlData.File;
+using Strona_v2.Server.EmailC;
 using Strona_v2.Server.TokenAuthentication;
 using Strona_v2.Shared.SqlDataAccess;
 
@@ -18,13 +19,33 @@ builder.Services.AddSingleton<ISqlDataAccess, SqlDataAccess>();     //głowna kl
 builder.Services.AddSingleton<ILoginUser, LoginUser>();             //log użytkownika
 builder.Services.AddSingleton<IProfileUser, ProfileUser>();         //
 builder.Services.AddSingleton<IEditProfileUser, EditProfileUser>(); //edycja usera
-builder.Services.AddSingleton<ICreatTable,CreatTable>();            //tworzenie tabel
-builder.Services.AddSingleton<ISaveFileToSQL,SaveFileToSQL>();      //zapisywanie plików
+builder.Services.AddSingleton<ICreatTable, CreatTable>();            //tworzenie tabel
+builder.Services.AddSingleton<ISaveFileToSQL, SaveFileToSQL>();      //zapisywanie plików
 builder.Services.AddSingleton<IFileToSQL, FileToSQL>();             //polecenia sql dla plików
-builder.Services.AddSingleton<IHashids>(_ => new Hashids("Prosiak",11));// "hashowanie" id usera
-builder.Services.AddSingleton<ISaveCommentToSQL,SaveCommentToSQL>();    //polecenia sql do komentarzy
 
+var HashidsToken = builder.Configuration.GetValue<string>("HashidsToken");
+builder.Services.AddSingleton<IHashids>(_ => new Hashids(HashidsToken, 11));// "hashowanie" id usera
 
+builder.Services.AddSingleton<ISaveCommentToSQL, SaveCommentToSQL>();    //polecenia sql do komentarzy
+
+//pobieranie danych z appsetting.json do serwisu od wysyłania email
+var FromEmail = builder.Configuration.GetValue<string>("FluentEmail:FromEmail");
+var FromName = builder.Configuration.GetValue<string>("FluentEmail:FromName");
+var SmtpSenderHost = builder.Configuration.GetValue<string>("FluentEmail:SmtpSender:Host");
+var SmtpSenderPort = builder.Configuration.GetValue<string>("FluentEmail:SmtpSender:Port");
+var SmtpSenderUserName = builder.Configuration.GetValue<string>("FluentEmail:SmtpSender:UserName");
+var SmtpSenderPassword = builder.Configuration.GetValue<string>("FluentEmail:SmtpSender:Password");
+builder.Services
+                .AddFluentEmail(FromEmail, FromName)                
+                .AddRazorRenderer()                
+                .AddSmtpSender(SmtpSenderHost,                
+                                int.Parse(SmtpSenderPort)//,
+                               // SmtpSenderUserName,
+                               // SmtpSenderPassword                                
+                                );
+builder.Services.AddScoped<IEmailSend, EmailSend>();
+builder.Services.AddSingleton<IEmailVerification, EmailVerification>();
+//
 builder.Services.AddSingleton<ITokenManager, TokenManager>();       //autoryzacja przy użyciu tokenu
 
 builder.Services.AddControllersWithViews().AddNewtonsoftJson();

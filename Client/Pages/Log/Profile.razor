@@ -1,83 +1,96 @@
 ﻿@page "/Profile/{UserName}"
 
 @inject IApiUser _ApiUser
+@inject ILogger<Profile> _Ilogger
+
 
 @if (UserPublic != null)
 {
-        <div class="col-auto">
-            <div class="float-start">
-                <p>
-                    <img src="/BlekitnaFlaga1850ST.jpg" alt="Avatar" style="border-radius:1rem; width:164px; height:164px;" />
-                </p>
-                <center class="col-auto">
+    <div class="col-auto">
+        <div class="float-start">
+            <p>
+                <img src="/BlekitnaFlaga1850ST.jpg" alt="Avatar" style="border-radius:1rem; width:164px; height:164px;" />
+            </p>
+            <center class="col-auto">
+                <div>
                     <div>
-                        <div>
-                            <span>Profil @UserPublic.Name</span>
-                            <span>@UserPublic.Like/-@UserPublic.UnLike</span>
-                        </div>
+                        <span>Profil @UserPublic.Name</span>
+                        <span>@UserPublic.Like/-@UserPublic.UnLike</span>
                     </div>
+                </div>
+                <div>
                     <div>
-                        <div>
-                            <label>
-                                Data założenia konta:<br />
+                        <label>
+                            Data założenia konta:<br />
                             @UserPublic.DataCreat.LocalDateTime
-                            </label>
-                        </div>
-                        <div>
-                            <label>
-                                Ostatnio online:@LastOnline
-                            </label>
+                        </label>
+                    </div>
+                    <div>
+                        <label>
+                            Ostatnio online:@LastOnline
+                        </label>
+                    </div>
+                </div>
+            </center>
+        </div>
+        <center class="col-auto float-start">
+            &nbsp;&nbsp;<br />&nbsp;&nbsp;<br />&nbsp;&nbsp;<br />&nbsp;&nbsp;<br />&nbsp;&nbsp;<br />&nbsp;&nbsp;<br />&nbsp;&nbsp;<br />&nbsp;&nbsp;<br />
+            &nbsp;&nbsp;<br />&nbsp;&nbsp;<br />&nbsp;&nbsp;<br />&nbsp;&nbsp;<br />&nbsp;&nbsp;<br />&nbsp;&nbsp;<br />&nbsp;&nbsp;<br />&nbsp;&nbsp;<br />
+        </center>
+        <div class="col-auto float-start">
+            <AuthorizeView>
+                <Authorized>
+                    <div class="nav-item ">
+                        <div @onclick="ToggleUserMenu">
+                            <NavLink class="nav-tabs">
+                                <span class="oi oi-document" aria-hidden="true">Edytuj Dane</span>
+                            </NavLink>
                         </div>
                     </div>
-                </center>
-            </div>
-            <center class="col-auto float-start">
-                &nbsp;&nbsp;<br />&nbsp;&nbsp;<br />&nbsp;&nbsp;<br />&nbsp;&nbsp;<br />&nbsp;&nbsp;<br />&nbsp;&nbsp;<br />&nbsp;&nbsp;<br />&nbsp;&nbsp;<br />
-                &nbsp;&nbsp;<br />&nbsp;&nbsp;<br />&nbsp;&nbsp;<br />&nbsp;&nbsp;<br />&nbsp;&nbsp;<br />&nbsp;&nbsp;<br />&nbsp;&nbsp;<br />&nbsp;&nbsp;<br />
-            </center>
-            <div class="col-auto float-start">
-                <AuthorizeView>
-                    <Authorized>
-                        <div class="nav-item ">
-                            <div @onclick="ToggleUserMenu">
-                                <NavLink class="nav-tabs">
-                                    <span class="oi oi-document" aria-hidden="true">Edytuj Dane</span>
-                                </NavLink>
-                            </div>
-                        </div>
                     @if (ToggleUserSetting)
                     {
-                                <UserSettings></UserSettings>
+                        <UserSettings></UserSettings>
                     }
-                    </Authorized>
-                </AuthorizeView>
-            </div>
+                </Authorized>
+            </AuthorizeView>
         </div>
+    </div>
 
 
 }
 else
 {
-        <h3>
-            Loading...
-        </h3>
+    <h3>
+        Loading...
+    </h3>
 }
 
 @code {
     [Parameter]
     public string? UserName { get; set; }
 
-    private string? Name;
-    private UserPublic? UserPublic;
+
+    private UserPublic? UserPublic { get; set; }
     protected override async Task OnInitializedAsync()
     {
         if (UserName != null)
         {
-            Name = UserName.Trim('"');
-            UserPublic = await _ApiUser.ProfileUserPublic(Name);
+            string Name = UserName.Trim('"');
+            await GetData(Name);
         }
-        WhenLastOnline();
+        // WhenLastOnline();
     }
+
+    private async Task GetData(string NameOrId)
+    {
+        UserPublic = await _ApiUser.ProfileUserPublicName(NameOrId, _Ilogger);
+        if (UserPublic == null)
+        {
+            UserPublic = await _ApiUser.ProfileUserPublicID(NameOrId, _Ilogger);
+        }
+    }
+
+
     private bool ToggleUserSetting = false;
 
     private void ToggleUserMenu()

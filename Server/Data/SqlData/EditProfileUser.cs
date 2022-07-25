@@ -1,4 +1,6 @@
-﻿using Strona_v2.Shared.SqlDataAccess;
+﻿using Microsoft.VisualBasic;
+using Newtonsoft.Json.Linq;
+using Strona_v2.Shared.SqlDataAccess;
 using Strona_v2.Shared.User;
 
 namespace Strona_v2.Server.Data.SqlData
@@ -9,6 +11,7 @@ namespace Strona_v2.Server.Data.SqlData
         Task EditEmail(UserLogin loginUser, UserEditProfile userEditProfile);
         Task EditName(UserLogin loginUser, UserEditProfile userEditProfile);
         Task EditPassword(UserLogin loginUser, UserEditProfile userEditProfile);
+        Task EmailVerification(int Id);
         Task<List<string>> GetAllEmail();
         Task<List<string>> GetAllName();
         Task<bool> UpdatelastOnline(string token, DateTimeOffset LastOnline);
@@ -113,7 +116,15 @@ namespace Strona_v2.Server.Data.SqlData
             return await _SqlDataAccess.LoadDataList<string>(sql);
         }
 
+        //potwierdzenie Email'u
+        public async Task EmailVerification(int Id)
+        {
+            string sql = " UPDATE dbo." + TableName +
+                        " SET EmailConfirmed=1" +
+                        " WHERE Id=N'" + Id + "'";
 
+            await _SqlDataAccess.SaveData(sql, Id);
+        }
 
 
     }

@@ -39,6 +39,7 @@ namespace Strona_v2.Server.Controllers
             {
                 client.Add(server[i].CastToClient(server[i]));
                 client[i].Id = _Ihashids.Encode(server[i].Id, 11);
+                client[i].UserId = _Ihashids.Encode(server[i].UserId, 11);
             }
             return Ok(client);
         }

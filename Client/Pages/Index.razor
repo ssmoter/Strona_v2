@@ -1,4 +1,5 @@
 ﻿@page "/"
+
 @inject ILocalStorageService _ILocalStorageService
 @inject IApiUserWithToken _IApiUserWithToken
 @inject ToastService _toastService
@@ -6,31 +7,27 @@
 @inject NavigationManager _navigationManager
 
 
-@if (browserDimension.Width > 640)
-{
-    @*<button class="btn btn-danger" @onclick="@(() => _toastService.ShowToast("I'm an ERROR message", ToastLevel.Error))">Error Toast</button>*@
-    <div class="w-75">
 
-        <div class="float-start w-75 ">
+
+@*<button class="btn btn-danger" @onclick="@(() => _toastService.ShowToast("I'm an ERROR message", ToastLevel.Error))">Error Toast</button>*@
+<div>
+
+    <div class="indexMain-css">
+        <div>
             <Strona_v2.Client.Pages.FIle.SortFile />
         </div>
-        <div class="float-start w-25">
-            @*Kiedyś reklama*@
-
+    </div>
+    <div class="ad-css">
+        <div>
+            Kiedyś reklama
         </div>
 
     </div>
-    
-}
-else
-{
-
-}
+</div>
 
 @code {
-    BrowserDimension browserDimension = new();
 
-    
+    BrowserDimension browserDimension = new();
 
     protected async override Task OnInitializedAsync()
     {

@@ -73,7 +73,7 @@ namespace Strona_v2.Client.Data.API
                 }
                 return false;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw;
             }

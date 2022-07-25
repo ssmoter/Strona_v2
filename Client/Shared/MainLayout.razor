@@ -4,16 +4,14 @@
 
 <Toast></Toast>
 
-
-<div class="page" >
-    <div class="sidebar" >
+<div class="page index-css">
+    <div class="sidebar navMenu-css">
         <NavMenu />
     </div>
-
-    <main >
+    <main>
         <AuthorizeView>
             <Authorized>
-                <div class="top-row px-4">
+                <div class="top-row px-4 mainLayout-css">
                     <a @onclick="GoToProfile">@*@context.User.Identity.Name.Trim('"')*@ @UserName</a>
                 </div>
                 <article class="content px-4">
@@ -21,10 +19,9 @@
                 </article>
             </Authorized>
             <NotAuthorized>
-                <div class="top-row px-4">
+                <div class="top-row px-4 mainLayout-css">
                     <NavLink href="login">Gość</NavLink>
                 </div>
-
                 <article class="content px-4">
                     @Body
                 </article>
@@ -32,12 +29,14 @@
         </AuthorizeView>
     </main>
 </div>
+
 @code {
     private string? UserName;
 
     protected override Task OnAfterRenderAsync(bool firstRender)
     {
         var resultName = localstorage.GetItem<UserLocalStorage>(nameof(UserLocalStorage));
+
         if (resultName != null)
         {
             UserName = resultName.Name.Trim('"');

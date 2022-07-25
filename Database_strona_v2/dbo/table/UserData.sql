@@ -9,7 +9,7 @@
     [Like] INT NULL, 
     [UnLike] INT NULL, 
     [LastOnline] DATETIMEOFFSET NULL, 
-    [EmailConfirmed] BIT NULL, 
+    [EmailConfirmed] BIT NULL DEFAULT 'False', 
     [Role] NVARCHAR(50) NULL DEFAULT 'User', 
     [DataCreat] DATETIMEOFFSET NOT NULL, 
     [AvatarNameString] NVARCHAR(MAX) NULL, 

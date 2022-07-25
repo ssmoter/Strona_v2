@@ -1,8 +1,18 @@
 ﻿@page "/NewFile"
+<AuthorizeView>
+    <Authorized>
+        <UploadFilePC></UploadFilePC>
+    </Authorized>
+    <NotAuthorized>
+        <div>
+            <p>
+                Musisz się zalogowąć aby móc wysłać dane.
+            </p>
+        </div>
+    </NotAuthorized>
+</AuthorizeView>
 
-<UploadFilePC></UploadFilePC>
+@code {
 
-@code{
 
-    
 }

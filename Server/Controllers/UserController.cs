@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Strona_v2.Server.Data;
 using Strona_v2.Server.Data.SqlData;
+using Strona_v2.Server.EmailC;
 using Strona_v2.Server.Filtres;
 using Strona_v2.Server.TokenAuthentication;
 using Strona_v2.Shared.User;
@@ -21,18 +22,26 @@ namespace Strona_v2.Server.Controllers
         private readonly IProfileUser _ProfileUser;
         private readonly IEditProfileUser _EditProfileUser;
         private readonly IHashids _hashids;
-
+        private readonly IEmailSend _emailSend;
+        private readonly ILogger<UserController> _logger;
+        private readonly IEmailVerification _emailVerification;
         public UserController(ILoginUser LogInUser,
             ITokenManager TokenManager,
             IProfileUser ProfileUser,
             IEditProfileUser EditProfileUser,
-            IHashids hashids)
+            IHashids hashids,
+            IEmailSend emailSend,
+            ILogger<UserController> logger,
+            IEmailVerification emailVerification)
         {
             _LogInUser = LogInUser;
             _tokenManager = TokenManager;
             _ProfileUser = ProfileUser;
             _EditProfileUser = EditProfileUser;
             _hashids = hashids;
+            _emailSend = emailSend;
+            _logger = logger;
+            _emailVerification = emailVerification;
         }
 
         // GET api/<UserController>/5
@@ -53,7 +62,8 @@ namespace Strona_v2.Server.Controllers
                     user.ExpiryDate = token.ExpiryDate;
 
                     user.SecondId = _hashids.Encode(user.Id, 11);
-                    user.Id = -1;
+                    // user.Id = -1;
+
                     return Ok(user);
                     //return Ok(new { Token = _tokenManager.NewToken(user) });
                 }
@@ -68,23 +78,58 @@ namespace Strona_v2.Server.Controllers
 
         //Pobieranie danych do obejrzenia profilu
         [HttpGet]
-        [Route("profile")]
-        public async Task<IActionResult> ProfileData(/*int? id,*/ string? userName)
+        [Route("profileID")]
+        public async Task<IActionResult> ProfileDataId(string ID)
         {
             UserPublic userFull;
             try
             {
-                //pobieranie po id 
-                //if (id >= 0)
-                //{
-                //    userFull = await _ProfileUser.UserFullDataIntId((int)id);
+                int id = -1;
+                if (!string.IsNullOrEmpty(ID))
+                {
+                    var n = _hashids.Decode(ID);
+                    id = n[0];
+                }
 
-                //    return Ok(userFull);
-                //}
+                //pobieranie po id
+                if (id >= 0)
+                {
+                    userFull = await _ProfileUser.UserFullDataIntId(id);
+                    if (userFull == null)
+                    {
+                        return NotFound();
+                    }
+                    userFull.Id = _hashids.Encode(int.Parse(userFull.Id), 11);
+                    return Ok(userFull);
+                }
+
+                //bledne dane/ nie ma usera
+                return NotFound();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+        }
+
+        //Pobieranie danych do obejrzenia profilu
+        [HttpGet]
+        [Route("profileName")]
+        public async Task<IActionResult> ProfileDataName(string userName)
+        {
+            UserPublic userFull;
+            try
+            {
                 //pobieranie po nick
                 if (userName != null)
                 {
                     userFull = await _ProfileUser.UserFullDataStringName(userName);
+                    if (userFull == null)
+                    {
+                        return NotFound();
+                    }
+                    userFull.Id = _hashids.Encode(int.Parse(userFull.Id), 11);
 
                     return Ok(userFull);
                 }
@@ -97,6 +142,9 @@ namespace Strona_v2.Server.Controllers
             }
 
         }
+
+
+
 
         //modyfikacja profilu
         [HttpPatch]
@@ -189,7 +237,7 @@ namespace Strona_v2.Server.Controllers
         //POST api/<UserController>
         //Api od rejestracji
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] UserRegisterClient client)
+        public async Task<IActionResult> RegisterAsync([FromBody] UserRegisterClient client)
         {
             try
             {
@@ -204,17 +252,38 @@ namespace Strona_v2.Server.Controllers
                     UserLogin login = new();
                     login = login.CastFromUserRegisterServer(server);
 
+                    var EmailToken = _emailVerification.NewToken();
+                    EmailToken += login.Id;
+                    EmailToken = _hashids.Encode(int.Parse(EmailToken));
+                    await _emailSend.SendTemplateRegister(login.Email, "Rejestracja", EmailBody.RegisterTemplate(login.Email, EmailToken));
+
                     return Ok(login);
                 }
                 return NoContent(); ;
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                _logger.LogError(ex.Message);
                 return BadRequest();
             }
+        }
 
+        [HttpGet]
+        [Route("ConfirmEmail")]
+        public async Task<IActionResult> ConfirmEmail(string EmailToken)
+        {
+            var intToken = _hashids.Decode(EmailToken);
 
+            int id = int.Parse(intToken[0].ToString().Substring(8, 1));
+            string token = intToken[0].ToString().Substring(0, 8);
+
+            if (_emailVerification.ConfirmToken(token))
+            {
+                await _EditProfileUser.EmailVerification(id);
+                return Ok(true);
+            }
+
+            return BadRequest(false);
         }
 
         //// PUT api/<UserController>/5
