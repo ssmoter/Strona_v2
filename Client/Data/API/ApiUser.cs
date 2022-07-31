@@ -48,7 +48,7 @@ namespace Strona_v2.Client.Data.API
         {
             try
             {
-                var Url = ApiStringName + "profileID?ID=" + Id;
+                var Url = ApiStringName + "profileID?Id=" + Id;
                 var response = await _httpClient.GetAsync(Url);
 
                 if (response.IsSuccessStatusCode)

@@ -5,8 +5,10 @@
 
 @if (_fileModels != null)
 {
-    <span @onclick="@RefreshModel">
-        <button @onclick="@PopularFile">Popularne</button>
+    <span @onclick="@RefreshModel" class="button-group-css">
+  @*      <span>
+            <button class="button-css" @onclick="@PopularFile">@PopularString</button>
+        </span>*@
         @*<button @onclick="@PopularFile24">Popularne 24h</button>*@
     </span>
 
@@ -45,10 +47,10 @@ else
 
 
 
-    private static int CompareByNoLike(FileModelPublic model1, FileModelPublic model2)
-    {
-        return model1.NoLike.CompareTo(model2.NoLike);
-    }
+    //private static int CompareByNoLike(FileModelPublic model1, FileModelPublic model2)
+    //{
+    //    return model1.NoLike.CompareTo(model2.NoLike);
+    //}
 
     private void RefreshModel()
     {
@@ -56,21 +58,27 @@ else
     }
 
     private bool PopularBool = true;
-    private void PopularFile()
-    {
-        if (PopularBool)
-        {
-            _fileModels.Sort(CompareByNoLike);
-            shouldRender = !shouldRender;
-            PopularBool = !PopularBool;
-        }
-        else if (!PopularBool)
-        {
-            _fileModels.Reverse();
-            PopularBool = !PopularBool;
-            shouldRender = !shouldRender;
-        }
-    }
+    private string PopularString = "Najlepsze";
+    //private void PopularFile()
+    //{
+    //    if (PopularBool)
+    //    {
+    //        _fileModels.Sort(CompareByNoLike);
+    //        _fileModels.Sort(CompareByNoLike);
+
+    //        PopularString = "Najlepsze";
+    //        PopularBool = !PopularBool;
+    //        shouldRender = !shouldRender;
+
+    //    }
+    //    else if (!PopularBool)
+    //    {
+    //        _fileModels.Reverse();
+    //        PopularString = "Najgorsze";
+    //        PopularBool = !PopularBool;
+    //        shouldRender = !shouldRender;
+    //    }
+    //}
 
     private void PopularFile24()
     {

@@ -5,6 +5,7 @@
 @inject ILogger<CurrentFile> _logger
 @inject ToastService _toastService
 @inject IApiUser _IApiUser;
+@inject ILocalStorageService _IlocalStorage
 
 
 <div class="current-css">
@@ -13,9 +14,9 @@
         {
             <div>
                 <UserNameLink ID="@_modelPublic.UserId"></UserNameLink>
-                <h3>@_modelPublic.Title</h3>
-                <p><span>@_modelPublic.NoLike</span> / <span>@_modelPublic.Spam</span></p>
-                <p>@_modelPublic.Description</p>
+                <h3 class="text-css ">@_modelPublic.Title</h3>
+@*                <span class="float-end"><span>@_modelPublic.NoLike</span> / <span>@_modelPublic.Spam</span></span>
+*@                <p class="text-css">@_modelPublic.Description</p>
             </div>
             <div>
                 @if (_modelPublic.Files.Count - 1 > 0)
@@ -63,31 +64,41 @@
                 </Authorized>
             </AuthorizeView>
         </div>
-        @if (_Comments != null)
-        {
-            <div class="">
-                @for (var i = 0; i < _Comments.Count; i++)
-                {
-                    <div class="border border-1 border-dark">
-                        <p>
-                            <UserNameLink ID="@_Comments[i].UserId"></UserNameLink>
-                            <span>
-                                &nbsp; @_Comments[i].Like/
-                            </span>
-                            <span>
-                                @_Comments[i].UnLike
-                            </span>
-                        </p>
-                        <p>@_Comments[i].Created.ToString("yyyy'-'MM'-'dd'/'HH':'mm':'ss");</p>
-                        <p>@_Comments[i].Comment</p>
-                    </div>
-                }
-            </div>
-        }
-        else
-        {
-            <h6>Loading...</h6>
-        }
+        <div>
+            @if (_Comments != null)
+            {
+                <div class="button-group-css">
+                    <span>
+                        <button class="btn button-css" @onclick="@PopularComment">@PopularString</button>
+                    </span>
+                    <span>
+                        <button class="btn button-css" @onclick="@TimeComment">@TimeString</button>
+                    </span>
+                </div>
+                <div class="">
+                    @for (var i = 0; i < _Comments.Count; i++)
+                    {
+                        <div class="border border-1 border-dark">
+                            <p>
+                                <UserNameLink ID="@_Comments[i].UserId"></UserNameLink>
+                                <span>
+                                    @*&nbsp; @_Comments[i].Like/*@
+                                </span>
+                                <span>
+                                    @*@_Comments[i].UnLike*@
+                                </span>
+                            </p>
+                            <p>@_Comments[i].Created.ToString("yyyy'-'MM'-'dd'/'HH':'mm':'ss")</p>
+                            <p>@_Comments[i].Comment</p>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <h6>Loading...</h6>
+            }
+        </div>
     </div>
 </div>
 <div class="ad-css">
@@ -99,6 +110,7 @@
 @code {
     [Parameter]
     public string Id { get; set; }
+
 
     private FileModelPublic? _modelPublic;
     private List<CommentModelClient>? _Comments;
@@ -211,9 +223,107 @@
                 {
                     await GetUserNames(item.UserId);
                 }
+                await GetChooseTypeOfSort();
             }
         }
     }
 
+    //sortowanie według ilości like
+    private static int CompareByNoLike(CommentModelClient model1, CommentModelClient model2)
+    {
+        return model1.Created.CompareTo(model2.Created);
+    }
+    private string PopularString = "Najlepsze";
+    private int SortType = 0;
+    private bool PopularCom = true;
+    private async Task PopularComment()
+    {
+        if (_Comments != null)
+        {
+            if (PopularCom)
+            {
+                SortType = 1;
+                PopularCom = !PopularCom;
+                _Comments.Sort(CompareByNoLike);
+                _Comments.Reverse();
+                PopularString = "Najlepsze";
+            }
+            else if (!PopularCom)
+            {
+                SortType = 2;
+                PopularCom = !PopularCom;
+                _Comments.Sort(CompareByNoLike);
+                PopularString = "Najgorsze";
+            }
+            await _IlocalStorage.SetItemAsync<int>(nameof(SortType), SortType);
 
+        }
+    }
+    //
+
+
+    //sortowanie po dacie
+    private static int CompareByTime(CommentModelClient model1, CommentModelClient model2)
+    {
+        return model1.Created.CompareTo(model2.Created);
+    }
+
+    private string TimeString = "Najnowsze";
+    private bool TimeCom = true;
+    private async Task TimeComment()
+    {
+        if (_Comments != null)
+        {
+            if (TimeCom)
+            {
+                SortType = 3;
+                TimeCom = !TimeCom;
+                _Comments.Sort(CompareByTime);
+                _Comments.Reverse();
+                TimeString = "Najnowsze";
+            }
+            else if (!TimeCom)
+            {
+                SortType = 4;
+                TimeCom = !TimeCom;
+                _Comments.Sort(CompareByTime);
+                TimeString = "Najstarsze";
+            }
+            await _IlocalStorage.SetItemAsync<int>(nameof(SortType), SortType);
+        }
+    }
+    //
+    //pobieranie zapamiętanego sposobu sortowania
+    private async Task GetChooseTypeOfSort()
+    {
+        SortType = await _IlocalStorage.GetItemAsync<int>(nameof(SortType));
+
+        switch (SortType)
+        {
+            case 1:
+                PopularCom = !PopularCom;
+                _Comments.Sort(CompareByNoLike);
+                _Comments.Reverse();
+                PopularString = "Najlepsze";
+                break;
+            case 2:
+                PopularCom = !PopularCom;
+                _Comments.Sort(CompareByNoLike);
+                PopularString = "Najgorsze";
+                break;
+            case 3:
+                TimeCom = !TimeCom;
+                _Comments.Sort(CompareByTime);
+                _Comments.Reverse();
+                TimeString = "Najnowsze";
+                break;
+            case 4:
+                TimeCom = !TimeCom;
+                _Comments.Sort(CompareByTime);
+                TimeString = "Najstarsze";
+                break;
+            default:
+                break;
+        }
+    }
 }

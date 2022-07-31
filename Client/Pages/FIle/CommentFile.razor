@@ -1,14 +1,25 @@
 ﻿@inject IAPIComment _ApiComment
 @inject ILogger<CommentFile> _logger
 @inject IApiUser _IApiUser;
+@inject ILocalStorageService _IlocalStorage
 
 @if (_Comments != null)
 {
     <div>
         @if (_Comments.Count - 1 >= 0)
         {
-            <p>Komentarze:</p>
+            <p>
+                <spa>Komentarze:</spa><span class="float-end">@_Comments.Count</span>
+            </p>
             <div class="comment-css">
+                <div class="button-group-css">
+                    <span>
+                        <button class="btn button-css" @onclick="@PopularComment">@PopularString</button>
+                    </span>
+                    <span>
+                        <button class="btn button-css" @onclick="@TimeComment">@TimeString</button>
+                    </span>
+                </div>
                 @for (var i = 0; i < _Comments.Count; i++)
                 {
                     <div class="">
@@ -17,10 +28,10 @@
                                 @_users[i].Name
                             </span>
                             <span>
-                                @_Comments[i].Like/
+                                @*@_Comments[i].Like/*@
                             </span>
                             <span>
-                                @_Comments[i].UnLike
+                                @*@_Comments[i].UnLike*@
                             </span>
                         </p>
                         <p>@_Comments[i].Created.ToString("yyyy'-'MM'-'dd'/'HH':'mm':'ss")</p>
@@ -47,14 +58,17 @@
 
     private List<CommentModelClient>? _Comments;
     private List<UserPublic>? _users { get; set; }
-
     protected async override Task OnInitializedAsync()
     {
         _Comments = await _ApiComment.GetCommentAsync(_FileId, _logger);
         _users = new();
-        foreach (var item in _Comments)
+        if (_Comments != null)
         {
-            await GetUserName(item.UserId);
+            foreach (var item in _Comments)
+            {
+                await GetUserName(item.UserId);
+            }
+            await GetChooseTypeOfSort();
         }
     }
     private async Task GetUserName(string id)
@@ -73,6 +87,104 @@
 
                 };
             _users.Add(user1);
+        }
+    }
+    //sortowanie według ilości like
+    private static int CompareByNoLike(CommentModelClient model1, CommentModelClient model2)
+    {
+        return model1.Created.CompareTo(model2.Created);
+    }
+    private string PopularString = "Najlepsze";
+    private int SortType = 0;
+    private bool PopularCom = true;
+    private async Task PopularComment()
+    {
+        if (_Comments != null)
+        {
+            if (PopularCom)
+            {
+                SortType = 1;
+                PopularCom = !PopularCom;
+                _Comments.Sort(CompareByNoLike);
+                _Comments.Reverse();
+                PopularString = "Najlepsze";
+            }
+            else if (!PopularCom)
+            {
+                SortType = 2;
+                PopularCom = !PopularCom;
+                _Comments.Sort(CompareByNoLike);
+                PopularString = "Najgorsze";
+            }
+            await _IlocalStorage.SetItemAsync<int>(nameof(SortType), SortType);
+
+        }
+    }
+    //
+
+
+    //sortowanie po dacie
+    private static int CompareByTime(CommentModelClient model1, CommentModelClient model2)
+    {
+        return model1.Created.CompareTo(model2.Created);
+    }
+
+    private string TimeString = "Najnowsze";
+    private bool TimeCom = true;
+    private async Task TimeComment()
+    {
+        if (_Comments != null)
+        {
+            if (TimeCom)
+            {
+                SortType = 3;
+                TimeCom = !TimeCom;
+                _Comments.Sort(CompareByTime);
+                _Comments.Reverse();
+                TimeString = "Najnowsze";
+            }
+            else if (!TimeCom)
+            {
+                SortType = 4;
+                TimeCom = !TimeCom;
+                _Comments.Sort(CompareByTime);
+                TimeString = "Najstarsze";
+            }
+            await _IlocalStorage.SetItemAsync<int>(nameof(SortType), SortType);
+        }
+    }
+    //
+    //pobieranie zapamiętanego sposobu sortowania
+    private async Task GetChooseTypeOfSort()
+    {
+        SortType = await _IlocalStorage.GetItemAsync<int>(nameof(SortType));
+
+        switch (SortType)
+        {
+            case 1:
+                PopularCom = !PopularCom;
+                _Comments.Sort(CompareByNoLike);
+                _Comments.Reverse();
+                PopularString = "Najlepsze";
+                break;
+            case 2:
+                PopularCom = !PopularCom;
+                _Comments.Sort(CompareByNoLike);
+                PopularString = "Najgorsze";
+                break;
+            case 3:
+                TimeCom = !TimeCom;
+                _Comments.Sort(CompareByTime);
+                _Comments.Reverse();
+                TimeString = "Najnowsze";
+                break;
+            case 4:
+                TimeCom = !TimeCom;
+                _Comments.Sort(CompareByTime);
+                TimeString = "Najstarsze";
+                break;
+            default:
+                break;
         }
     }
 

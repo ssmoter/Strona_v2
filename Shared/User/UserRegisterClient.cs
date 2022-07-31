@@ -12,7 +12,7 @@ namespace Strona_v2.Shared.User
         public string? Email { get; set; }
 
         [Required(ErrorMessage = "Hasło jest wymagane")]
-        [StringLength(100, ErrorMessage = "Przedział dlugości hasła to {2} do {1}", MinimumLength = 10)]
+        [StringLength(100, ErrorMessage = "Przedział dlugości hasła to {2} do {1}", MinimumLength = 1)]
         [DataType(DataType.Password)]
         //Display(Name = "Password")]
         public string? Password { get; set; }

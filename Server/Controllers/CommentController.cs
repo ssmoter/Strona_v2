@@ -43,15 +43,10 @@ namespace Strona_v2.Server.Controllers
 
             if (server != null)
             {
-                List<CommentModelClient> clients=new();
+                List<CommentModelClient> clients = new();
                 for (int i = 0; i < server.Count(); i++)
                 {
-                    clients.Add(server[i].CastToClient());
-                    //clients[i] = server[i].CastToClient();
-
-                    clients[i].Id = _hashids.Encode(server[i].Id,11);
-                    clients[i].FileId = FileId;
-                    clients[i].UserId=_hashids.Encode(server[i].UserId,11);
+                    clients.Add(new CommentModelClient(server[i], _hashids));
                 }
 
                 return Ok(clients);
@@ -64,8 +59,8 @@ namespace Strona_v2.Server.Controllers
         [TokenAuthenticationFilter]
         public async Task<IActionResult> SetComment(CommentModelClient comment)
         {
-            var fileId=_hashids.Decode(comment.FileId);
-            if(fileId.Length == 0)
+            var fileId = _hashids.Decode(comment.FileId);
+            if (fileId.Length == 0)
             {
                 return NotFound();
             }
@@ -75,11 +70,8 @@ namespace Strona_v2.Server.Controllers
                 return NotFound();
             }
 
-            CommentModelServer server = new();
-            server = comment.CastToServer();
-            server.FileId = fileId[0];
-            server.UserId = userId[0];
-            server.Created=DateTimeOffset.Now;
+            CommentModelServer server = new(comment, _hashids);
+            server.Created = DateTimeOffset.Now;
 
             await _CommentSQL.SetCommentsAsync(server);
 

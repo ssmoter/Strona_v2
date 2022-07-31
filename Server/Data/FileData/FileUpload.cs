@@ -70,15 +70,11 @@ namespace Strona_v2.Server.Data.FileData
             {
                 _logger.LogInformation(ex.Message);
                 throw;
-            }
-
-            _FileModel.Path = Path.Combine(_webHostEnvironment.ContentRootPath, _webHostEnvironment.EnvironmentName, UnSaveUploads);
-            
+            }            
              var combine = CombineString(_FileModel.Files);
 
             _FileModel.StoredFileName = combine.StoredFileName;
             _FileModel.Type=combine.Type;
-
 
             return _FileModel;
         }
@@ -122,22 +118,24 @@ namespace Strona_v2.Server.Data.FileData
                     CreatFolder(_Patch);
                     _Patch = Path.Combine(_Patch, TrustedFileName);
 
-                    await using FileStream fs = new(_Patch, FileMode.Create);
-                    await file.CopyToAsync(fs);
+                    await using (FileStream fs = new(_Patch, FileMode.Create))
+                    {
+                        await file.CopyToAsync(fs);
 
-                    _logger.LogInformation("{TrustedFileName} saved at {Patch}", TrustedFileName, _Patch);
-                    fileSingleModel.Uploaded = true;
-                    fileSingleModel.StoredFileName = TrustedFileName;
-                    fileSingleModel.ErrorCode = 0;
-                    fileSingleModel.Type = SplitTyp(file.FileName);
+                        _logger.LogInformation("{TrustedFileName} saved at {Patch}", TrustedFileName, _Patch);
+                        fileSingleModel.Uploaded = true;
+                        fileSingleModel.StoredFileName = TrustedFileName;
+                        fileSingleModel.ErrorCode = 0;
+                        fileSingleModel.Type = SplitTyp(file.FileName);
 
 
 
-                    return fileSingleModel;
+                        return fileSingleModel;
+                    }
                 }
                 catch (IOException ex)
                 {
-                    _logger.LogInformation("{FileName} error on upload (Error 3):{Message}", TrustedFileName, ex.Message);
+                    _logger.LogError("{FileName} error on upload (Error 3):{Message}", TrustedFileName, ex.Message);
                     fileSingleModel.ErrorCode = 3;
 
                     return fileSingleModel;
@@ -181,7 +179,7 @@ namespace Strona_v2.Server.Data.FileData
         {
             if (file.Length == 0)
             {
-                _logger.LogInformation("{FileName} not uploaded becouse the request exceede the allowed {count} of files (Error 4)", FileName, MaxAlloweFiles);
+                _logger.LogError("{FileName} not uploaded becouse the request exceede the allowed {count} of files (Error 4)", FileName, MaxAlloweFiles);
                 fileSingleModel.ErrorCode = 4;
                 return fileSingleModel;
             }

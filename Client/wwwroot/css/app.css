@@ -202,6 +202,10 @@ a, .btn-link {
     .comment-css-main div {
         display: none;
     }
+
+    .comment-css-main span {
+        display: none;
+    }
 }
 
 .ad-css {
@@ -212,7 +216,7 @@ a, .btn-link {
 
 .indexMain-css {
     float: left;
-    width: 50%;
+    width: 60%;
 }
 
 .input-text-css {
@@ -285,14 +289,16 @@ a, .btn-link {
     .button-css:hover {
         background-color: #616161;
     }
+
 .button-group-css {
-    text-align:center;
+    text-align: center;
 }
-.button-group-css button{
-    display:inline-block;
-    vertical-align:middle;
-    padding:10px;
-}
+
+    .button-group-css button {
+        display: inline-block;
+        vertical-align: middle;
+        padding: 10px;
+    }
 
 .separation-css {
     background-color: #333333 !important;

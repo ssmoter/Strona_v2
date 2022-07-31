@@ -12,7 +12,7 @@ namespace Strona_v2.Server.Data.CommentData
     public class SaveCommentToSQL : ISaveCommentToSQL
     {
         private readonly ISqlDataAccess _sqlDataAccess;
-        private readonly string TableName = nameof(CommentModelServer) + "_";
+        private readonly string TableName = nameof(CommentModel);
         public SaveCommentToSQL(ISqlDataAccess sqlDataAccess)
         {
             _sqlDataAccess = sqlDataAccess;
@@ -21,25 +21,21 @@ namespace Strona_v2.Server.Data.CommentData
         //pobieranie komentarzy z jednego posta
         public async Task<IList<CommentModelServer>> GetCommentsAsync(int FileId)
         {
-            string sql = "SELECT * FROM dbo." + TableName + FileId.ToString();
+            string sql = "SELECT * FROM dbo." + TableName +
+                " WHERE " + nameof(CommentModelServer.FileId) + " = " + FileId;
 
-            // sql = "SELECT * FROM dbo.CommentModelServer_4002";
             return await _sqlDataAccess.LoadDataList<CommentModelServer>(sql);
         }
 
         //zapisywanie komentarzy
         public async Task SetCommentsAsync(CommentModelServer comment)
         {
-            string sql = "INSERT INTO dbo." + TableName + comment.FileId +
+            string sql = "INSERT INTO dbo." + TableName +
                           " \n(" + nameof(CommentModelServer.FileId) + ", " + nameof(CommentModelServer.UserId) +
-                          ", " + nameof(CommentModelServer.Comment) + ", " + nameof(CommentModelServer.NoLike) +
-                          ", " + nameof(CommentModelServer.UnLike) + ", " + nameof(CommentModelServer.Created) +
-                           ", " + nameof(CommentModelServer.ListUserIdLike) + ", " + nameof(CommentModelServer.ListUserIdUnLike) +
+                          ", " + nameof(CommentModelServer.Comment) + ", " + nameof(CommentModelServer.Created) +
                           ")\n VALUES\n(@"
                                + nameof(CommentModelServer.FileId) + ", @" + nameof(CommentModelServer.UserId) +
-                          ", @" + nameof(CommentModelServer.Comment) + ", @" + nameof(CommentModelServer.NoLike) +
-                          ", @" + nameof(CommentModelServer.UnLike) + ", @" + nameof(CommentModelServer.Created) +
-                          ", @" + nameof(CommentModelServer.ListUserIdLike) + ", @" + nameof(CommentModelServer.ListUserIdUnLike) + ")";
+                          ", @" + nameof(CommentModelServer.Comment) + ", @" + nameof(CommentModelServer.Created) + ")";
             await _sqlDataAccess.SaveData(sql, comment);
         }
 

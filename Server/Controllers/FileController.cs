@@ -26,6 +26,7 @@ namespace Strona_v2.Server.Controllers
             _IFileToSQL = fileToSQL;
             _Ihashids = hashids;
         }
+
         //zwracanie listy modeli
         [HttpGet]
         //public async Task<IList<FileModelClient>> GetFile()
@@ -80,9 +81,10 @@ namespace Strona_v2.Server.Controllers
 
             try
             {
-                var image = System.IO.File.OpenRead(path);
-
-                return File(image, "image/" + Type);
+                using (var image = System.IO.File.OpenRead(path))
+                {
+                    return File(image, "image/" + Type);
+                }
             }
             catch (Exception ex)
             {
@@ -99,7 +101,6 @@ namespace Strona_v2.Server.Controllers
         public async Task<IActionResult> PostModel(FileModelClient client)
         {
             client.Created = DateTimeOffset.Now;
-            DeleteFile deleteFile = new(_logger, _webHostEnvironment);
             FileModelServer server = new();
             server = client.CastToServer(client);
             var rawUserId = _Ihashids.Decode(client.UserId);
@@ -113,16 +114,7 @@ namespace Strona_v2.Server.Controllers
             //wszystko ok
             if (result)
             {
-                return Ok(DateTimeOffset.Now);
-            }
-            //usunięcie rekordu bo nie udało się stworzyć tabeli dla komentarzy
-            //oraz usunięcie plików
-            if (!result)
-            {
-                var servers = await _IFileToSQL.GetFileModelsSimple();
-                int LastId = servers[servers.Count - 1].Id;
-                await _IFileToSQL.DeteteFileModel(LastId);
-                await deleteFile.Delete(servers[LastId]);
+                return Ok(client.Created);
             }
             return BadRequest();
         }
@@ -134,11 +126,11 @@ namespace Strona_v2.Server.Controllers
         public async Task<IActionResult> PostFile(
             [FromForm] IEnumerable<IFormFile> files, string UserId)
         {
-            FileUpload fileUpload = new FileUpload();
+            FileUpload fileUpload = new();
             FileModelServer fileM = new();
 
             var rawUserId = _Ihashids.Decode(UserId);
-            if (rawUserId.Length == 0)
+            if (rawUserId.Length <= 0)
             {
                 return NotFound();
             }
@@ -147,6 +139,11 @@ namespace Strona_v2.Server.Controllers
             if (files.Count() > 0)
             {
                 fileM = await fileUpload.UploadAsync(files, rawUserId[0], _logger, _webHostEnvironment);
+
+                if (fileM == null)
+                {
+                    return BadRequest();
+                }
 
                 FileModelClient client = new();
 

@@ -39,13 +39,13 @@
             </div>
             <div>
                 Opis:<br />
-                <InputTextArea class="form-control input-css" @bind-Value="filePublic.Description"></InputTextArea>
+                <InputTextArea class="form-control input-css" @bind-Value="@filePublic.Description"></InputTextArea>
             </div>
 
-            <div>
-                Tag:<br />
-                <InputText class="form-control input-css" @bind-Value="filePublic.Tag"></InputText>
-            </div>
+            @*            <div>
+            Tag:<br />
+            <InputText class="form-control input-css" @bind-Value="@filePublic.Tag"></InputText>
+            </div>*@
             <button type="submit">Prześlij</button>
         </EditForm>
     </div>
@@ -66,7 +66,7 @@
             </div>
             <div>
                 <p>
-                    @filePublic.Tag
+                    @*@filePublic.Tag*@
                 </p>
             </div>
             <div class="text-center">
@@ -135,7 +135,7 @@
         catch (Exception exce)
         {
             _toast.ShowToast(Toasts[2], ToastLevel.Error);
-            _logger.LogInformation(exce.Message);
+            _logger.LogError(exce.Message);
         }
     }
 
@@ -148,7 +148,7 @@
         modelPublic.Files = new();
         modelPublic.Title = filePublic.Title;
         modelPublic.Description = filePublic.Description;
-        modelPublic.Tag = filePublic.Tag;
+        //modelPublic.Tag = filePublic.Tag;
 
         try
         {

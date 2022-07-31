@@ -31,18 +31,11 @@ namespace Strona_v2.Server.Data.FileData
             {
                 //zapisanie danych do sql
                 await fileToSQL.CreateFile(fileModel);
-
-                IList<FileModelServer> mode = await fileToSQL.GetFileModelsSimple();
-
-                int id = mode[mode.Count - 1].Id;
-                fileModel.Id = id;
-                //stworzenie tabeli do komentarzy
-                bool result = await CreatedTabelForComment(id);
-                return result;
+                return true;
             }
             catch (Exception ex)
             {
-                logger.LogInformation("Error:" + ex.Message);
+                logger.LogError("Error:" + ex.Message);
                 return false;
             }
         }
@@ -118,7 +111,7 @@ namespace Strona_v2.Server.Data.FileData
         //utworzenie nowej tabeli dla komentarzy 
         private async Task<bool> CreatedTabelForComment(int FileId)
         {
-            ExampleTable exampleTable = new(8);
+            ExampleTable exampleTable = new(6);
             CommentModelServer commentModel = new CommentModelServer();
 
 
@@ -131,20 +124,8 @@ namespace Strona_v2.Server.Data.FileData
             exampleTable.ColumnName[2] = nameof(commentModel.Comment);
             exampleTable.ColumnParametr[2] = "nvarchar(MAX)";
 
-            exampleTable.ColumnName[3] = nameof(commentModel.NoLike);
-            exampleTable.ColumnParametr[3] = "int";
-
-            exampleTable.ColumnName[4] = nameof(commentModel.UnLike);
-            exampleTable.ColumnParametr[4] = "int";
-
             exampleTable.ColumnName[5] = nameof(commentModel.Created);
             exampleTable.ColumnParametr[5] = "datetimeoffset";
-
-            exampleTable.ColumnName[6] = nameof(commentModel.ListUserIdLike);
-            exampleTable.ColumnParametr[6] = "Text";
-
-            exampleTable.ColumnName[7] = nameof(commentModel.ListUserIdUnLike);
-            exampleTable.ColumnParametr[7] = "Text";
 
             string Question = exampleTable.CreatSqlTable(nameof(CommentModelServer), FileId.ToString());
 
@@ -153,5 +134,22 @@ namespace Strona_v2.Server.Data.FileData
             bool result = await creatTable.CreatNewSQLTask(Question);
             return result;
         }
+
+
+        //utworzenie nowej tabeli dla like/unlike
+        private async Task<bool> CreatedTabelForLike(int FileId)
+        {
+            ExampleTable exampleTable = new(8);
+            CommentModelServer commentModel = new CommentModelServer();
+
+
+            string Question = exampleTable.CreatSqlTable(nameof(CommentModelServer), FileId.ToString());
+
+            CreatTable creatTable = new CreatTable(_sqlDataAccess);
+
+            bool result = await creatTable.CreatNewSQLTask(Question);
+            return result;
+        }
+
     }
 }

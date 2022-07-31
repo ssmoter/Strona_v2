@@ -16,7 +16,7 @@ namespace Strona_v2.Server.Data.SqlData.File
     public class FileToSQL : IFileToSQL
     {
         private readonly ISqlDataAccess _SqlDataAccess;
-        private readonly string TableName = "FileData";
+        private readonly string TableName = nameof(FileModelC);
         public FileToSQL(ISqlDataAccess sqlDataAccess)
         {
             _SqlDataAccess = sqlDataAccess;
@@ -26,11 +26,11 @@ namespace Strona_v2.Server.Data.SqlData.File
         public async Task CreateFile(FileModelServer file)
         {
             string sql = "INSERT INTO dbo." + TableName +
-                " \n(" + nameof(file.Title) + ", " + nameof(file.Description) + ", " + nameof(file.Tag) +
-                ", " + nameof(file.UserId) + ", " + nameof(file.Created)  +
+                " \n(" + nameof(file.Title) + ", " + nameof(file.Description) +
+                ", " + nameof(file.UserId) + ", " + nameof(file.Created) +
                  ", " + nameof(file.StoredFileName) + ", " + nameof(file.Type) +
                 ") \nVALUES \n(@" +
-                nameof(file.Title) + ", @" + nameof(file.Description) + ", @" + nameof(file.Tag) +
+                nameof(file.Title) + ", @" + nameof(file.Description) +
                 ", @" + nameof(file.UserId) + ", @" + nameof(file.Created) + ", @" +
                  nameof(file.StoredFileName) + ", @" + nameof(file.Type) + ")";
 
@@ -69,14 +69,13 @@ namespace Strona_v2.Server.Data.SqlData.File
             return await _SqlDataAccess.LoadDataList<FileModelServer>(sql);
         }
 
-        //pobieranie ID NoLike i daty
+        //pobieranie Id i daty
         public async Task<IList<FileModelServer>> GetFileModelsSimple()
         {
             string sql = "SELECT " +
                 nameof(FileModelServer.Id) + "," +
-                nameof(FileModelServer.NoLike) + "," +
                 nameof(FileModelServer.Created) +
-                " FROM " + TableName;           
+                " FROM " + TableName;
 
             return await _SqlDataAccess.LoadDataList<FileModelServer>(sql);
         }

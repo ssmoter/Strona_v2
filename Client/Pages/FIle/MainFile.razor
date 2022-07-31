@@ -12,7 +12,7 @@
             <div>
                 <UserNameLink ID="@_Model.UserId"></UserNameLink>
                 <h3 class="text-css " @onclick="GoToCurrent">@_Model.Title</h3>
-                <span class="float-end"> <span>@_Model.NoLike</span> / <span>@_Model.Spam</span></span>
+             @*   <span class="float-end"> <span>@_Model.NoLike</span> / <span>@_Model.Spam</span></span>*@
                 <p class="text-css " @onclick="GoToCurrent">@_Model.Description</p>
             </div>
             <div class="">
@@ -39,20 +39,25 @@
                 }
             </div>
         </div>
-        <div class="button-group-css">
+        <div class="button-group-css ">
             <span class="comment-css-main">
-                <button class="btn button-css" @onclick="@ChangeStatusComment">@NameComment komentarze</button>
+                <span>
+                    <button class="btn button-css" @onclick="@ChangeStatusComment">@NameComment komentarze</button>
+                </span>
             </span>
             <span class="">
-                <button class="btn button-css" @onclick="@ChangeStatusComment">+1</button>
+                <button class="btn button-css">+1</button>
+            </span>
+            <span class="">
+                <button class="btn button-css">-1</button>
             </span>
         </div>
         <div>
             @if (ShowComment)
             {
-                <div class="comment-css-main">
+            @*    <div class="comment-css-main">
                     <CommentFile _FileId=@_Id></CommentFile>
-                </div>
+                </div>*@
             }
         </div>
 
