@@ -1,4 +1,5 @@
 ﻿@using Strona_v2.Client.Data.File.Dowloand
+@page "/t/{tag}"
 
 @inject IAPIFileDowloand _IAPIFileDowloand
 @inject ILogger<SortFile> _logger
@@ -6,9 +7,9 @@
 @if (_fileModels != null)
 {
     <span @onclick="@RefreshModel" class="button-group-css">
-  @*      <span>
-            <button class="button-css" @onclick="@PopularFile">@PopularString</button>
-        </span>*@
+        @*      <span>
+    <button class="button-css" @onclick="@PopularFile">@PopularString</button>
+    </span>*@
         @*<button @onclick="@PopularFile24">Popularne 24h</button>*@
     </span>
 
@@ -37,15 +38,24 @@ else
     List<FileModelPublic> _fileModels;
     private bool shouldRender = true;
 
+    [Parameter]
+    public string? tag { get; set; }
+
     //protected override bool ShouldRender() => shouldRender;
 
     protected async override Task OnInitializedAsync()
     {
-        _fileModels = await _IAPIFileDowloand.GetFileModels(_logger);
-        _fileModels.Reverse();
+        if (tag != null)
+        {
+            _fileModels = await _IAPIFileDowloand.GetFileModelFromTag(tag, _logger);
+            _fileModels.Reverse();
+        }
+        if (tag == null)
+        {
+            _fileModels = await _IAPIFileDowloand.GetFileModels(_logger);
+            _fileModels.Reverse();
+        }
     }
-
-
 
     //private static int CompareByNoLike(FileModelPublic model1, FileModelPublic model2)
     //{

@@ -10,7 +10,7 @@
     [Type] NVARCHAR(MAX) NULL, 
     [NSFW] BIT NULL DEFAULT 'False', 
     [Ban] BIT NULL DEFAULT 'False', 
-    [NoLike] INT NULL, 
-    [UnLike] INT NULL
+    [NoLike] INT NULL DEFAULT 0, 
+    [UnLike] INT NULL DEFAULT 0
         
 )

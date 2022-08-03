@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Strona_v2.Server.Data.FileData;
 using Strona_v2.Server.Data.SqlData.File;
+using Strona_v2.Server.Data.TagData;
 using Strona_v2.Server.Filtres;
 using Strona_v2.Shared.File;
 
@@ -13,18 +14,19 @@ namespace Strona_v2.Server.Controllers
     {
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly ILogger<FileController> _logger;
-        private ISaveFileToSQL _IsaveFileToSQL;
+        private readonly ISaveFileToSQL _IsaveFileToSQL;
         private readonly IFileToSQL _IFileToSQL;
         private readonly IHashids _Ihashids;
+        private readonly ITagSql _ITagSql;
 
-
-        public FileController(IWebHostEnvironment webHostEnvironment, ILogger<FileController> logger, ISaveFileToSQL isaveFileToSQL, IFileToSQL fileToSQL, IHashids hashids)
+        public FileController(IWebHostEnvironment webHostEnvironment, ILogger<FileController> logger, ISaveFileToSQL isaveFileToSQL, IFileToSQL fileToSQL, IHashids hashids, ITagSql iTagSql)
         {
             _webHostEnvironment = webHostEnvironment;
             _logger = logger;
             _IsaveFileToSQL = isaveFileToSQL;
             _IFileToSQL = fileToSQL;
             _Ihashids = hashids;
+            _ITagSql = iTagSql;
         }
 
         //zwracanie listy modeli
@@ -56,11 +58,22 @@ namespace Strona_v2.Server.Controllers
                 return NotFound();
             }
             server.Id = ravId[0];
-            server = await _IFileToSQL.GetFileModel(server);
+            server = await _IFileToSQL.GetFileModel(server.Id);
 
             var client = server.CastToClient(server);
             client.Id = _Ihashids.Encode(server.Id, 11);
             client.UserId = _Ihashids.Encode(server.UserId, 11);
+
+            var tags = await _ITagSql.GetTagsList(server.Id);
+
+            if (tags != null)
+            {
+                client.tagModels = new();
+                foreach (var tag in tags)
+                {
+                    client.tagModels.Add(new TagModelClient(tag,_Ihashids));
+                }
+            }
 
             return Ok(client);
         }
@@ -81,10 +94,8 @@ namespace Strona_v2.Server.Controllers
 
             try
             {
-                using (var image = System.IO.File.OpenRead(path))
-                {
-                    return File(image, "image/" + Type);
-                }
+                var image = System.IO.File.OpenRead(path);
+                return File(image, "image/" + Type);
             }
             catch (Exception ex)
             {
@@ -98,7 +109,7 @@ namespace Strona_v2.Server.Controllers
         [Route("model")]
         [TokenAuthenticationFilter]
         //funkcja zapisywania danych w bazie danych
-        public async Task<IActionResult> PostModel(FileModelClient client)
+        public async Task<IActionResult> PostModel([FromBody] FileModelClient client)
         {
             client.Created = DateTimeOffset.Now;
             FileModelServer server = new();
@@ -111,6 +122,15 @@ namespace Strona_v2.Server.Controllers
             server.UserId = rawUserId[0];
 
             bool result = await _IsaveFileToSQL.SaveAsync(server, _logger);
+
+            int id = await _IFileToSQL.GetFileModelFromDate(client.Created);
+            foreach (var tag in client.tagModels)
+            {
+                tag.UserId = client.UserId;
+                var serverTag = new TagModelServer(tag, id, _Ihashids);
+                await _ITagSql.SaveTag(serverTag);
+            }
+
             //wszystko ok
             if (result)
             {

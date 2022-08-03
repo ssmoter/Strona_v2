@@ -1,7 +1,8 @@
 ﻿CREATE TABLE [dbo].[ReactionModel]
 (
 	[Id] INT NOT NULL PRIMARY KEY IDENTITY, 
-    [FileId] INT NULL, 
+    [ObjectId] INT NULL, 
     [UserId] INT NULL, 
-    [ReactionLevel] INT NULL
+    [ReactionLevel] INT NULL, 
+    [ReactionType] INT NULL
 )

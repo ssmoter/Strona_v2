@@ -7,4 +7,25 @@
     <Property Name="ParentElementType" Value="SqlTable" />
     <Property Name="NewName" Value="UnLike" />
   </Operation>
+  <Operation Name="Rename Refactor" Key="f38f0c5b-40d0-45c3-a4ed-be006ede7b76" ChangeDateTime="07/31/2022 08:28:52">
+    <Property Name="ElementName" Value="[dbo].[TagModel].[v]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[TagModel]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="Value" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="ec351ca9-18b7-48c0-adff-f97505c5fe6f" ChangeDateTime="08/02/2022 16:07:30">
+    <Property Name="ElementName" Value="[dbo].[ReactionModel].[FileId]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[ReactionModel]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="Obcejt" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="b008b56f-1a10-420b-b3b9-656bae3c2924" ChangeDateTime="08/02/2022 16:07:50">
+    <Property Name="ElementName" Value="[dbo].[ReactionModel].[Obcejt]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[ReactionModel]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="ObjectId" />
+  </Operation>
 </Operations>

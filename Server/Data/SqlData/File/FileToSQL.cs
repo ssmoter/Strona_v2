@@ -1,5 +1,6 @@
 ﻿using Strona_v2.Shared.File;
 using Strona_v2.Shared.SqlDataAccess;
+using System.Globalization;
 
 namespace Strona_v2.Server.Data.SqlData.File
 {
@@ -7,10 +8,12 @@ namespace Strona_v2.Server.Data.SqlData.File
     {
         Task CreateFile(FileModelServer file);
         Task DeteteFileModel(int Id);
-        Task<FileModelServer> GetFileModel(FileModelServer file);
+        Task<FileModelServer> GetFileModel(int file);
         Task<IList<FileModelServer>> GetFileModels();
         Task<IList<FileModelServer>> GetFileModelsSimple();
         Task UpdateFile(FileModelServer file);
+        Task<int> GetFileModelFromDate(DateTimeOffset? date);
+        Task<FileModelServer> GetFileModelsSimpleOne(int id);
     }
 
     public class FileToSQL : IFileToSQL
@@ -50,12 +53,11 @@ namespace Strona_v2.Server.Data.SqlData.File
         }
 
         //pobranie jednego obiektu
-        public async Task<FileModelServer> GetFileModel(FileModelServer file)
+        public async Task<FileModelServer> GetFileModel(int file)
         {
             string sql = "SELECT * " +
                 " FROM dbo." + TableName +
-                " WHERE " + nameof(file.Id) + " = " + file.Id;
-
+                " WHERE " + nameof(FileModelServer.Id) + " = " + file;
 
             return await _SqlDataAccess.LoadData<FileModelServer>(sql);
         }
@@ -73,12 +75,23 @@ namespace Strona_v2.Server.Data.SqlData.File
         public async Task<IList<FileModelServer>> GetFileModelsSimple()
         {
             string sql = "SELECT " +
-                nameof(FileModelServer.Id) + "," +
-                nameof(FileModelServer.Created) +
+                nameof(FileModelServer.Id) + "," + nameof(FileModelServer.Created) +
+                "," + nameof(FileModelServer.NoLike) + "," + nameof(FileModelServer.UnLike) +
                 " FROM " + TableName;
 
             return await _SqlDataAccess.LoadDataList<FileModelServer>(sql);
         }
+        public async Task<FileModelServer> GetFileModelsSimpleOne(int id)
+        {
+            string sql = "SELECT " +
+                nameof(FileModelServer.Id) + "," + nameof(FileModelServer.Created) +
+                "," + nameof(FileModelServer.NoLike) + "," + nameof(FileModelServer.UnLike) +
+                " FROM " + TableName +
+                " WHERE " + nameof(FileModelServer.Id) + " = " + id;
+
+            return await _SqlDataAccess.LoadData<FileModelServer>(sql);
+        }
+
 
         //Usuwanie rekordu
         public async Task DeteteFileModel(int Id)
@@ -87,6 +100,17 @@ namespace Strona_v2.Server.Data.SqlData.File
                 " WHERE " + nameof(FileModelServer.Id) + " = " + Id;
 
             await _SqlDataAccess.SaveData(sql, Id);
+        }
+
+        public Task<int> GetFileModelFromDate(DateTimeOffset? Created)
+        {
+            CultureInfo ci = CultureInfo.InvariantCulture;
+
+            string sql = "SELECT Id " +
+                "FROM dbo." + TableName +
+                " WHERE " + nameof(Created) + "='" + Created.Value.ToString("yyyy-MM-dd HH:mm:ss.fffffff K") + "'";
+
+            return _SqlDataAccess.LoadData<int>(sql);
         }
 
     }

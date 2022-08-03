@@ -4,6 +4,7 @@ using Strona_v2.Server.Data.FileData;
 using Strona_v2.Server.Data.SqlCreatTable;
 using Strona_v2.Server.Data.SqlData;
 using Strona_v2.Server.Data.SqlData.File;
+using Strona_v2.Server.Data.TagData;
 using Strona_v2.Server.EmailC;
 using Strona_v2.Server.TokenAuthentication;
 using Strona_v2.Shared.SqlDataAccess;
@@ -22,6 +23,8 @@ builder.Services.AddSingleton<IEditProfileUser, EditProfileUser>(); //edycja use
 builder.Services.AddSingleton<ICreatTable, CreatTable>();            //tworzenie tabel
 builder.Services.AddSingleton<ISaveFileToSQL, SaveFileToSQL>();      //zapisywanie plików
 builder.Services.AddSingleton<IFileToSQL, FileToSQL>();             //polecenia sql dla plików
+builder.Services.AddSingleton<ITagSql, TagSql>();                    //polecenia sql dla tag
+
 
 var HashidsToken = builder.Configuration.GetValue<string>("HashidsToken");
 builder.Services.AddSingleton<IHashids>(_ => new Hashids(HashidsToken, 11));// "hashowanie" id usera
@@ -36,12 +39,12 @@ var SmtpSenderPort = builder.Configuration.GetValue<string>("FluentEmail:SmtpSen
 var SmtpSenderUserName = builder.Configuration.GetValue<string>("FluentEmail:SmtpSender:UserName");
 var SmtpSenderPassword = builder.Configuration.GetValue<string>("FluentEmail:SmtpSender:Password");
 builder.Services
-                .AddFluentEmail(FromEmail, FromName)                
-                .AddRazorRenderer()                
-                .AddSmtpSender(SmtpSenderHost,                
+                .AddFluentEmail(FromEmail, FromName)
+                .AddRazorRenderer()
+                .AddSmtpSender(SmtpSenderHost,
                                 int.Parse(SmtpSenderPort)//,
-                               // SmtpSenderUserName,
-                               // SmtpSenderPassword                                
+                                                         // SmtpSenderUserName,
+                                                         // SmtpSenderPassword                                
                                 );
 builder.Services.AddScoped<IEmailSend, EmailSend>();
 builder.Services.AddSingleton<IEmailVerification, EmailVerification>();

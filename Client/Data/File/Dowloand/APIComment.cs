@@ -34,7 +34,7 @@ namespace Strona_v2.Client.Data.File.Dowloand
         {
             try
             {
-                var Url = ApiStringName + "?FileId=" + FileId;
+                var Url = ApiStringName + "?ObjectId=" + FileId;
 
                 var result = await _httpClient.GetAsync(Url);
 

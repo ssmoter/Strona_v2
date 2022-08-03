@@ -1,83 +1,51 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using HashidsNet;
 using Microsoft.AspNetCore.Mvc;
+using Strona_v2.Server.Data.ReactionData;
+using Strona_v2.Shared.File;
 
 namespace Strona_v2.Server.Controllers
 {
     public class ReactionController : Controller
     {
-        // GET: ReactionController
-        public ActionResult Index()
+        private readonly IHashids _Ihashids;
+        private readonly IReactionSql _reactionSql;
+
+        public ReactionController(IHashids ihashids)
         {
-            return View();
+            _Ihashids = ihashids;
         }
 
-        // GET: ReactionController/Details/5
-        public ActionResult Details(int id)
-        {
-            return View();
-        }
-
-        // GET: ReactionController/Create
-        public ActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: ReactionController/Create
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public async Task<IActionResult> PostReaction(ReactionModelClient client)
         {
-            try
+            if (client is null)
             {
-                return RedirectToAction(nameof(Index));
+                return NotFound();
             }
-            catch
+
+            var server = new ReactionModelServer(client, _Ihashids);
+
+            await _reactionSql.InsertConcreteUserReaction(server);
+
+            switch (server.TypeObject)
             {
-                return View();
+                case ReactionType.UserData:
+
+                    break;
+                case ReactionType.FileModelC:
+
+                    break;
+                case ReactionType.CommentModel:
+
+                    break;
+                default:
+                    return NotFound();
             }
+
+            return Ok();
         }
 
-        // GET: ReactionController/Edit/5
-        public ActionResult Edit(int id)
-        {
-            return View();
-        }
 
-        // POST: ReactionController/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
 
-        // GET: ReactionController/Delete/5
-        public ActionResult Delete(int id)
-        {
-            return View();
-        }
-
-        // POST: ReactionController/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
     }
 }

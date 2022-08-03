@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using HashidsNet;
+using System.ComponentModel.DataAnnotations;
 
 namespace Strona_v2.Shared.File
 {
@@ -10,9 +11,11 @@ namespace Strona_v2.Shared.File
         public bool Main { get; set; }
         public string? StoredFileName { get; set; }
         public string? Type { get; set; }
-        public int Like { get; set; }
-        public int UnLike { get; set; }
+        public int NoLike { get; set; } = 0;
+        public int UnLike { get; set; } = 0;
         public List<FileSingleModel>? Files { get; set; }
+        public List<TagModelClient> tagModels { get; set; }
+        public ReactionModelClient? reactionModel { get; set; }
         public FileModelC()
         {
             Files = new List<FileSingleModel>();
@@ -29,6 +32,31 @@ namespace Strona_v2.Shared.File
         public string? Title { get; set; }
         [StringLength(500)]
         public string? UserId { get; set; }
+
+        public FileModelClient()
+        { }
+        public FileModelClient(FileModelServer server, IHashids hashids)
+        {
+            Title = server.Title;
+            Description = server.Description;
+            Created = server.Created;
+            Main = server.Main;
+            StoredFileName = server.StoredFileName;
+            Type = server.Type;
+            NoLike = server.NoLike;
+            UnLike = server.UnLike;
+            Files = server.Files;
+            tagModels = server.tagModels;
+
+            if (server.Id >= 0)
+            {
+                Id = hashids.Encode(server.Id);
+            }
+            if (server.UserId >= 0)
+            {
+                UserId = hashids.Encode(server.UserId);
+            }
+        }
 
         public FileModelServer CastToServer(FileModelClient client)
         {
@@ -50,10 +78,37 @@ namespace Strona_v2.Shared.File
         public int Id { get; set; }
         public int UserId { get; set; }
 
+
+        public FileModelServer()
+        { }
+        public FileModelServer(FileModelClient client, IHashids hashids)
+        {
+            Title = client.Title;
+            Description = client.Description;
+            Created = client.Created;
+            Main = client.Main;
+            StoredFileName = client.StoredFileName;
+            Type = client.Type;
+            NoLike = client.NoLike;
+            UnLike = client.UnLike;
+            Files = client.Files;
+            tagModels = client.tagModels;
+
+            if (!string.IsNullOrEmpty(client.Id))
+            {
+                Id = hashids.Decode(client.Id)[0];
+            }
+            if (!string.IsNullOrEmpty(client.UserId))
+            {
+                UserId = hashids.Decode(client.UserId)[0];
+            }
+        }
+
         public FileModelClient CastToClient(FileModelServer server)
         {
             FileModelClient client = new();
-
+            client.UnLike = server.UnLike;
+            client.NoLike = server.NoLike;
             client.Title = server.Title;
             client.Description = server.Description;
             client.Created = server.Created;
@@ -79,6 +134,53 @@ namespace Strona_v2.Shared.File
     {
         public string? Id { get; set; }
         public string? UserId { get; set; }
+
+        public FileModelPublic()
+        { }
+
+        public FileModelPublic(FileModelServer server, IHashids hashids)
+        {
+            Title = server.Title;
+            Description = server.Description;
+            Created = server.Created;
+            Main = server.Main;
+            StoredFileName = server.StoredFileName;
+            Type = server.Type;
+            NoLike = server.NoLike;
+            UnLike = server.UnLike;
+            Files = server.Files;
+            tagModels = server.tagModels;
+            if (server.Id >= 0)
+            {
+                Id = hashids.Encode(server.Id);
+            }
+            if (server.UserId >= 0)
+            {
+                UserId = hashids.Encode(server.UserId);
+            }
+
+        }
+
+        public static FileModelPublic SimpeCast(FileModelServer server, IHashids hashids)
+        {
+            if (server == null)
+            {
+                return null;
+            }
+            FileModelPublic modelPublic = new();
+            if (server.Id >= 0)
+            {
+                modelPublic.Id = hashids.Encode(server.Id);
+            }
+            if (server.UserId >= 0)
+            {
+                modelPublic.UserId = hashids.Encode(server.UserId);
+            }
+            modelPublic.NoLike = server.NoLike;
+            modelPublic.UnLike = server.UnLike;
+            modelPublic.Created = server.Created;
+            return modelPublic;
+        }
 
         public void TrimNameTyp()
         {

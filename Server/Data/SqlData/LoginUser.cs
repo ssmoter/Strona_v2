@@ -76,9 +76,17 @@ namespace Strona_v2.Server.Data.SqlData
         public async Task Register(UserRegisterServer server)
         {
             string sql = "INSERT INTO dbo." + TableName +
-                "\n (" + nameof(UserRegisterServer.Name) + ", " + nameof(UserRegisterServer.Email) + ", " + nameof(UserRegisterServer.Password) + "," + nameof(UserRegisterServer.DataCreat) + "," + nameof(UserRegisterServer.LastOnline) +
+                "\n (" + nameof(UserRegisterServer.Name) + ", " +
+                nameof(UserRegisterServer.Email) + ", " +
+                nameof(UserRegisterServer.Password) + "," +
+                nameof(UserRegisterServer.DataCreat) + "," +
+                nameof(UserRegisterServer.LastOnline) +
                 ")\n VALUES\n (@" +
-                nameof(UserRegisterServer.Name) + ", @" + nameof(UserRegisterServer.Email) + ", @" + nameof(UserRegisterServer.Password) + ", @" + nameof(UserRegisterServer.DataCreat) + ", @" + nameof(UserRegisterServer.LastOnline) + ")";
+                nameof(UserRegisterServer.Name) + ", @" +
+                nameof(UserRegisterServer.Email) + ", @" +
+                nameof(UserRegisterServer.Password) + ", @" +
+                nameof(UserRegisterServer.DataCreat) + ", @" +
+                nameof(UserRegisterServer.LastOnline) + ")";
 
             await _dataAccess.SaveData(sql, server);
         }

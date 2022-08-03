@@ -1,5 +1,4 @@
 ﻿using HashidsNet;
-using System.Reflection.Emit;
 
 namespace Strona_v2.Shared.File
 {
@@ -38,17 +37,23 @@ namespace Strona_v2.Shared.File
         { }
         public CommentModelServer(CommentModelClient client, IHashids hashids)
         {
-            var n = hashids.Decode(client.FileId);
-            FileId = n[0];
-            n = hashids.Decode(client.UserId);
-            UserId = n[0];
-            Comment = client.Comment;
-            Created = client.Created;
             if (!string.IsNullOrEmpty(client.Id))
             {
-                n = hashids.Decode(client.Id);
+                var n = hashids.Decode(client.Id);
                 Id = n[0];
             }
+            if (!string.IsNullOrEmpty(client.FileId))
+            {
+                var n = hashids.Decode(client.FileId);
+                FileId = n[0];
+            }
+            if (!string.IsNullOrEmpty(client.UserId))
+            {
+                var n = hashids.Decode(client.UserId);
+                UserId = n[0];
+            }
+            Comment = client.Comment;
+            Created = client.Created;
         }
     }
 

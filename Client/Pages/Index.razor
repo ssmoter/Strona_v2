@@ -25,9 +25,12 @@
 @code {
 
     BrowserDimension browserDimension = new();
-
+    ReactionModel reaction = new();
     protected async override Task OnInitializedAsync()
     {
+        reaction.Level = ReactionLevel.NoLike;
+        reaction.TypeObject = ReactionType.UserData;
+
         browserDimension = await _browserService.GetBrowserDimension();
     }
 }

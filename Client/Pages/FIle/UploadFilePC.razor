@@ -41,17 +41,18 @@
                 Opis:<br />
                 <InputTextArea class="form-control input-css" @bind-Value="@filePublic.Description"></InputTextArea>
             </div>
-
-            @*            <div>
-            Tag:<br />
-            <InputText class="form-control input-css" @bind-Value="@filePublic.Tag"></InputText>
-            </div>*@
-            <button type="submit">Prześlij</button>
+            <div>
+                Tag:<br />
+                <InputText class="form-control input-css" @bind-Value="@tag" @onkeydown="@CutTagKey"></InputText>
+            </div>
+            <button class="btn btn-success" type="submit">Prześlij</button>
         </EditForm>
+        <button class="btn btn-info" @onclick="@ForcePrevie">Wymuś odświerzenie</button>
+
     </div>
 </div>
 <div class="upload-preview-css">
-    <div>
+    <div class="" style="padding:10px;">
         <h3>Podgląd</h3>
         <div class="">
             <div>
@@ -66,7 +67,13 @@
             </div>
             <div>
                 <p>
-                    @*@filePublic.Tag*@
+                    @if (filePublic.tagModels != null)
+                    {
+                        @foreach (var tag in filePublic.tagModels)
+                        {
+                            <a class="border border-1 border-dark">@tag.Value</a> <span>&nbsp;</span>
+                        }
+                    }
                 </p>
             </div>
             <div class="text-center">
@@ -97,14 +104,26 @@
 
 
 @code {
-    private static FileModelClient filePublic = new(); //model obiektu
-    UploadFileBase uploadFile = new(); //model podlądu pliku
+    private FileModelClient filePublic = new();//model obiektu
+    private UploadFileBase uploadFile = new(); //model podlądu pliku
 
-    private bool shouldRender;
+    private bool shouldRender = true;
     protected override bool ShouldRender() => shouldRender;
+    protected async override Task OnParametersSetAsync()
+    {
+        filePublic.tagModels = new List<TagModelClient>();
+    }
+
+
+    public void ForcePrevie()
+    {
+        shouldRender = false;
+        CutTag();
+        shouldRender = true;
+    }
 
     private static readonly string[] Toasts = new[]
-                                                           {
+                                                   {
         "Wysłano pliki",                  //0
         "Błąd przy wysyłaniu pliku" ,     //1
         "Podgląd nie dostępny",           //2
@@ -148,8 +167,6 @@
         modelPublic.Files = new();
         modelPublic.Title = filePublic.Title;
         modelPublic.Description = filePublic.Description;
-        //modelPublic.Tag = filePublic.Tag;
-
         try
         {
             if (uploadFile.InputFileChange != null)
@@ -161,6 +178,8 @@
                 modelPublic.Type = resultImg.Type;
                 _toast.ShowToast(Toasts[0], ToastLevel.Info);
             }
+
+            modelPublic.tagModels = filePublic.tagModels;
             var resultModel = await _fileApi.PostModel(modelPublic, _logger);
 
             if (resultModel)
@@ -169,6 +188,8 @@
                 modelPublic = new();
                 uploadFile.ImgDataUri = new();
                 filePublic = new();
+                filePublic.tagModels = new List<TagModelClient>();
+                tag = string.Empty;
                 StateHasChanged();
             }
             else
@@ -187,11 +208,31 @@
     {
         ImgId = id;
     }
+    private string tag = string.Empty;
 
-    private void RemoveImg(int id)
+    private void CutTagKey(KeyboardEventArgs eventArgs)
     {
-
-
+        if (eventArgs.Key == " ")
+        {
+            CutTag();
+        }
     }
+
+    private void CutTag()
+    {
+        var listTag = tag.Split(" ");
+        foreach (var tag in listTag)
+        {
+            if (filePublic.tagModels.Any(x => x.Value == tag))
+            {
+                continue;
+            }
+            filePublic.tagModels.Add(new() { Value = tag });
+        }
+        filePublic.tagModels.Remove(filePublic.tagModels.SingleOrDefault(x => x.Value == ""));
+        StateHasChanged();
+    }
+
+
 
 }

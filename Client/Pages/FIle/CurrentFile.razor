@@ -15,8 +15,8 @@
             <div>
                 <UserNameLink ID="@_modelPublic.UserId"></UserNameLink>
                 <h3 class="text-css ">@_modelPublic.Title</h3>
-@*                <span class="float-end"><span>@_modelPublic.NoLike</span> / <span>@_modelPublic.Spam</span></span>
-*@                <p class="text-css">@_modelPublic.Description</p>
+                <span class="float-end"><span>@_modelPublic.NoLike</span> / <span>@_modelPublic.UnLike</span></span>
+                <p class="text-css">@_modelPublic.Description</p>
             </div>
             <div>
                 @if (_modelPublic.Files.Count - 1 > 0)

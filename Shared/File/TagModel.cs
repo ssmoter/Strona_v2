@@ -1,9 +1,4 @@
 ﻿using HashidsNet;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Strona_v2.Shared.File
 {
@@ -18,6 +13,7 @@ namespace Strona_v2.Shared.File
         public string? Id { get; set; }
         public string? FileId { get; set; }
         public string? UserId { get; set; }
+        public DateTimeOffset? Created { get; set; }
         public TagModelClient()
         { }
         public TagModelClient(TagModelServer server, IHashids hashids)
@@ -38,9 +34,27 @@ namespace Strona_v2.Shared.File
         { }
         public TagModelServer(TagModelClient client, IHashids hashids)
         {
-            Id = hashids.Decode(client.Id)[0];
-            FileId = hashids.Decode(client.FileId)[0];
-            UserId = hashids.Decode(client.UserId)[0];
+            if (!string.IsNullOrEmpty(client.Id))
+                Id = hashids.Decode(client.Id)[0];
+
+            if (!string.IsNullOrEmpty(client.FileId))
+                FileId = hashids.Decode(client.FileId)[0];
+
+            if (!string.IsNullOrEmpty(client.UserId))
+                UserId = hashids.Decode(client.UserId)[0];
+
+            Value = client.Value;
+        }
+        public TagModelServer(TagModelClient client, int fileId, IHashids hashids)
+        {
+            if (!string.IsNullOrEmpty(client.Id))
+                Id = hashids.Decode(client.Id)[0];
+
+            FileId = fileId;
+
+            if (!string.IsNullOrEmpty(client.UserId))
+                UserId = hashids.Decode(client.UserId)[0];
+
             Value = client.Value;
         }
     }

@@ -14,17 +14,16 @@ namespace Strona_v2.Client.Data.File.Upload
 
     public class UploadFileApi : IUploadFileApi
     {
-        private ITokenHttpClient _apiToken;
+        private readonly ITokenHttpClient _apiToken;
         private HttpClient _httpClient;
         private readonly ILocalStorageService _LocalStorage;
-        private string ApiStringName { get; set; }
+        private readonly UrlString urlString;
         public UploadFileApi(ILocalStorageService LocalStorage,
             HttpClient httpClient,
             ITokenHttpClient apiToken)
         {
             _LocalStorage = LocalStorage;
-            UrlString urlString = new UrlString();
-            ApiStringName = urlString.File;
+            urlString = new UrlString();
             _httpClient = httpClient;
             _apiToken = apiToken;
         }
@@ -68,7 +67,7 @@ namespace Strona_v2.Client.Data.File.Upload
             {
                 var UserLocal = await _apiToken.GetUserLocal();
 
-                var Url = ApiStringName + "img?UserId=" + UserLocal.Id;
+                var Url = urlString.File + "img?UserId=" + UserLocal.Id;
 
                 _httpClient = await _apiToken.AddHeadersAuthorization();
 
@@ -98,17 +97,17 @@ namespace Strona_v2.Client.Data.File.Upload
 
                 file.UserId = UserLocal.Id;
 
-                var Url = ApiStringName + "model";
+                var Url = urlString.File + "model";
 
                 _httpClient = await _apiToken.AddHeadersAuthorization();
                 file.Id = UserLocal.Id;
-                var response = await _httpClient.PostAsJsonAsync(Url, file);
-                //dopisać czas do local storage
+                var responseFile = await _httpClient.PostAsJsonAsync(Url, file);
 
-                if (response.IsSuccessStatusCode)
+                //dopisać czas do local storage                
+
+                if (responseFile.IsSuccessStatusCode)
                 {
-                    var UploadResult = await response.Content.ReadFromJsonAsync<DateTimeOffset>();
-
+                    var UploadResult = await responseFile.Content.ReadFromJsonAsync<DateTimeOffset>();
                     return true;
                 }
                 logger.LogError("Falied");
@@ -116,7 +115,7 @@ namespace Strona_v2.Client.Data.File.Upload
             }
             catch (Exception ex)
             {
-                logger.LogInformation(ex.Message);
+                logger.LogError(ex.Message);
                 return false;
             }
         }

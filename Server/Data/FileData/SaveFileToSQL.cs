@@ -45,7 +45,7 @@ namespace Strona_v2.Server.Data.FileData
         {
             bool result = false;
 
-            FileModelServer file = await fileToSQL.GetFileModel(fileModel);
+            FileModelServer file = await fileToSQL.GetFileModel(fileModel.Id);
 
             if (file.Created.Value.Year == DateTimeOffset.Now.Year && file.Created.Value.Day == DateTimeOffset.Now.Day)
             {

@@ -12,7 +12,17 @@
             <div>
                 <UserNameLink ID="@_Model.UserId"></UserNameLink>
                 <h3 class="text-css " @onclick="GoToCurrent">@_Model.Title</h3>
-             @*   <span class="float-end"> <span>@_Model.NoLike</span> / <span>@_Model.Spam</span></span>*@
+                <p>
+                    @if (_Model.tagModels.Count > 0)
+                    {
+                        @foreach (var tag in _Model.tagModels)
+                        {
+                            <a href="/t/@tag.Value" class="border border-0 border-dark">@tag.Value</a>
+                            <span>&nbsp;</span>
+                        }
+                    }
+                </p>
+                <span class="float-end"> <span>@_Model.NoLike</span> / <span>@_Model.UnLike</span></span>
                 <p class="text-css " @onclick="GoToCurrent">@_Model.Description</p>
             </div>
             <div class="">
@@ -55,9 +65,9 @@
         <div>
             @if (ShowComment)
             {
-            @*    <div class="comment-css-main">
+                <div class="comment-css-main">
                     <CommentFile _FileId=@_Id></CommentFile>
-                </div>*@
+                </div>
             }
         </div>
 

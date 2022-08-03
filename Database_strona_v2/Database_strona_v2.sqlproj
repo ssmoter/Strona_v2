@@ -66,6 +66,7 @@
     <Build Include="dbo\table\UserData.sql" />
     <Build Include="dbo\table\CommentModel.sql" />
     <Build Include="dbo\table\ReactionModel.sql" />
+    <Build Include="dbo\table\TagModel.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="PublishLocal\Database_strona_v2.publish.xml" />
