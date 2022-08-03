@@ -14,7 +14,7 @@ namespace Strona_v2.Shared.File
         public int NoLike { get; set; } = 0;
         public int UnLike { get; set; } = 0;
         public List<FileSingleModel>? Files { get; set; }
-        public List<TagModelClient> tagModels { get; set; }
+        public List<TagModelClient>? tagModels { get; set; }
         public ReactionModelClient? reactionModel { get; set; }
         public FileModelC()
         {
